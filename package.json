@@ -11,10 +11,20 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
+    "@tsparticles/all": "^3.9.1",
+    "@tsparticles/engine": "^3.9.1",
+    "@tsparticles/move-base": "^3.9.1",
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/shape-circle": "^3.9.1",
+    "@tsparticles/shape-polygon": "^3.9.1",
+    "@tsparticles/shape-star": "^3.9.1",
     "axios": "^1.12.2",
+    "framer-motion": "^12.23.16",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.1"
+    "react-router-dom": "^7.9.1",
+    "react-tsparticles": "^2.12.2",
+    "tsparticles": "^2.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
