@@ -4,19 +4,19 @@ import { motion } from "framer-motion";
 
 const features = [
   {
-    icon: "📄",
+    gif: "/assets/verified.gif",
     title: "Verified Resources",
     desc: "Get authentic exam papers, lab manuals, and reports directly from seniors.",
     color: "from-indigo-400 to-purple-500",
   },
   {
-    icon: "🔍",
+    gif: "/assets/search.gif",
     title: "Easy Search",
     desc: "Find resources by subject, year, or keywords in just seconds.",
     color: "from-green-400 to-teal-500",
   },
   {
-    icon: "🤝",
+    gif: "/assets/peer-support.gif",
     title: "Peer Support",
     desc: "Discuss doubts with peers through subject-based threads.",
     color: "from-pink-400 to-red-500",
@@ -25,9 +25,14 @@ const features = [
 
 const WhyChooseUs = () => {
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="relative py-20 bg-white overflow-hidden">
+      {/* Subtle gradient blobs */}
+      <div className="absolute -top-16 -left-16 w-64 h-64 bg-violet-200 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-pulse"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-200 rounded-full mix-blend-multiply filter blur-2xl opacity-15 animate-pulse"></div>
+      <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-2xl opacity-15 animate-pulse"></div>
+
       <motion.h3
-        className="text-4xl md:text-5xl font-extrabold text-center mb-16 text-gray-800"
+        className="text-4xl md:text-5xl font-fredoka text-center mb-16 text-gray-900"
         initial={{ opacity: 0, y: -50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -55,8 +60,12 @@ const WhyChooseUs = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <div className="text-6xl mb-6">{feature.icon}</div>
-              <h4 className="text-2xl font-bold mb-3 text-gray-900">
+              <img
+                src={feature.gif}
+                alt={feature.title}
+                className="w-32 h-32 mb-6 object-contain"
+              />
+              <h4 className="text-2xl font-fredoka mb-3 text-gray-900">
                 {feature.title}
               </h4>
               <p className="text-gray-700">{feature.desc}</p>
