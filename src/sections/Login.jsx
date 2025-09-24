@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import axios from "axios";
@@ -9,6 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate(); // <-- added
 
   // ====== Handle Login ======
   const handleLogin = async (e) => {
@@ -21,7 +22,9 @@ const Login = () => {
 
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
-        alert("Login successful 🎉");
+
+        // ✅ redirect to student dashboard
+        navigate("/student");
       } else {
         alert(res.data.message);
       }
@@ -47,7 +50,9 @@ const Login = () => {
 
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
-        alert("Google login successful 🎉");
+
+        // ✅ redirect to student dashboard
+        navigate("/student");
       } else {
         alert(res.data.message);
       }
