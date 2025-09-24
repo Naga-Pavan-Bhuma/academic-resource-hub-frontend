@@ -26,7 +26,7 @@ const Navbar = () => {
       />
 
       <div className="relative max-w-7xl mx-auto flex justify-between items-center px-6 py-3 md:py-4">
-        {/* Logo with floating + shimmer effect */}
+        {/* Logo */}
         <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 relative overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-500">
           Academic Hub
           <span
@@ -49,14 +49,16 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* Buttons */}
+        {/* Desktop Buttons */}
         <div className="hidden md:flex gap-4">
-          <button className="px-4 py-2 border border-gray-900 text-gray-900 font-medium rounded-md hover:bg-white/20 transform hover:scale-110 hover:shadow-lg transition-all duration-400">
-            Login
-          </button>
+          <Link to="/login">
+            <button className="px-4 py-2 border border-gray-900 text-gray-900 font-medium rounded-md hover:bg-white/20 transform hover:scale-110 hover:shadow-lg transition-all duration-400">
+              Login
+            </button>
+          </Link>
           <Link to="/signup">
             <button className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md shadow-md hover:shadow-xl hover:bg-blue-700 transform hover:scale-110 hover:translate-y-1 animate-pulse transition-all duration-400">
-             Sign Up
+              Sign Up
             </button>
           </Link>
         </div>
@@ -102,6 +104,13 @@ const Navbar = () => {
               {item}
             </a>
           ))}
+
+          {/* Mobile Login + Signup */}
+          <Link to="/login">
+            <button className="px-6 py-2 border border-gray-900 text-gray-900 rounded-md hover:bg-white/20 transform hover:scale-110 hover:shadow-lg transition-all duration-400">
+              Login
+            </button>
+          </Link>
           <Link to="/signup">
             <button className="px-6 py-2 bg-blue-600 text-white rounded-md shadow-md hover:shadow-xl hover:bg-blue-700 transform hover:scale-110 animate-pulse transition-all duration-400">
               Sign Up
