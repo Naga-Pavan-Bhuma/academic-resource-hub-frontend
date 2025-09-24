@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "@fontsource/poppins";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -53,9 +54,11 @@ const Navbar = () => {
           <button className="px-4 py-2 border border-gray-900 text-gray-900 font-medium rounded-md hover:bg-white/20 transform hover:scale-110 hover:shadow-lg transition-all duration-400">
             Login
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md shadow-md hover:shadow-xl hover:bg-blue-700 transform hover:scale-110 hover:translate-y-1 animate-pulse transition-all duration-400">
-            Sign Up
-          </button>
+          <Link to="/signup">
+            <button className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md shadow-md hover:shadow-xl hover:bg-blue-700 transform hover:scale-110 hover:translate-y-1 animate-pulse transition-all duration-400">
+             Sign Up
+            </button>
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
@@ -99,9 +102,11 @@ const Navbar = () => {
               {item}
             </a>
           ))}
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-md shadow-md hover:shadow-xl hover:bg-blue-700 transform hover:scale-110 animate-pulse transition-all duration-400">
-            Sign Up
-          </button>
+          <Link to="/signup">
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-md shadow-md hover:shadow-xl hover:bg-blue-700 transform hover:scale-110 animate-pulse transition-all duration-400">
+              Sign Up
+            </button>
+          </Link>
         </nav>
       </div>
     </header>
