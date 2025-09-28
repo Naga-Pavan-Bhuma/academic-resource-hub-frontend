@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaBook, FaDownload, FaEye } from "react-icons/fa";
+import { FaBook, FaEye } from "react-icons/fa";
 import PDFViewer from "./PDFViewer";
 
 const resources = [
@@ -41,15 +41,23 @@ const ResourceSearch = () => {
         <input
           type="text"
           placeholder="Search by subject, topic, uploaded by, or ID..."
-          className="flex-1 p-3 rounded-full border border-white/50 bg-white/20 placeholder-gray-600 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          className="flex-1 p-3 rounded-full border border-white/50 bg-white/20 placeholder-gray-600 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-400"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.target.value)}
+          className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-400"
+        >
           <option value="">Year</option>
           {years.map((year) => <option key={year} value={year}>{year}</option>)}
         </select>
-        <select value={selectedSem} onChange={(e) => setSelectedSem(e.target.value)} className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+        <select
+          value={selectedSem}
+          onChange={(e) => setSelectedSem(e.target.value)}
+          className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-400"
+        >
           <option value="">Semester</option>
           {semesters.map((sem) => <option key={sem} value={sem}>{sem}</option>)}
         </select>
@@ -73,7 +81,6 @@ const ResourceSearch = () => {
               </div>
               <div className="flex gap-2">
                 <button onClick={() => setViewPdf(res.file)} className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 text-white py-2 rounded-2xl hover:bg-cyan-600 hover:scale-105 transition"><FaEye /> View PDF</button>
-                <a href={res.file} download className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white py-2 rounded-2xl hover:bg-green-600 hover:scale-105 transition"><FaDownload /> Download PDF</a>
               </div>
             </div>
           ))}
