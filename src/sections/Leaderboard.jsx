@@ -12,23 +12,23 @@ const leaderboardData = [
 
 const Leaderboard = () => {
   return (
-    <aside className="w-72 bg-white p-4 hidden lg:block overflow-y-auto max-h-screen rounded-md shadow">
+    <section className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl p-6 hover:scale-105 transition-transform duration-300">
       {/* Heading */}
-      <h2 className="text-center font-bold text-lg mb-4 text-cyan-700 flex justify-center items-center gap-2">
+      <h2 className="text-center font-fredoka font-bold text-2xl mb-6 text-cyan-700 flex justify-center items-center gap-2">
         🏆 Leaderboard
       </h2>
 
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {leaderboardData.map((user, index) => (
           <li
             key={index}
-            className="flex justify-between items-center px-3 py-2 rounded hover:bg-cyan-50 transition"
+            className="flex justify-between items-center px-4 py-2 rounded-2xl hover:bg-white/30 transition shadow-sm"
           >
             <div className="flex items-center gap-3">
               {/* Rank badge for top 3 */}
               {index < 3 && (
                 <span
-                  className={`w-6 h-6 flex items-center justify-center rounded-full text-white font-bold ${
+                  className={`w-7 h-7 flex items-center justify-center rounded-full text-white font-bold ${
                     index === 0
                       ? "bg-yellow-400"
                       : index === 1
@@ -39,13 +39,13 @@ const Leaderboard = () => {
                   {index + 1}
                 </span>
               )}
-              <span className="font-medium text-gray-800 truncate">{user.name}</span>
+              <span className="font-medium text-gray-900 truncate">{user.name}</span>
             </div>
-            <span className="font-semibold text-cyan-700">{user.points} pts</span>
+            <span className="font-semibold text-cyan-500">{user.points} pts</span>
           </li>
         ))}
       </ul>
-    </aside>
+    </section>
   );
 };
 

@@ -4,12 +4,9 @@ import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/f
 
 const Footer = () => {
   return (
-    <footer className="relative py-10 bg-gray-900/70 backdrop-blur-lg text-gray-200 overflow-hidden">
-      {/* Subtle animated glow behind the footer */}
-      <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-500/10 to-purple-400/20 opacity-40 animate-glow pointer-events-none"></div>
-
+    <footer className="py-10 bg-gray-900 text-gray-200">
       {/* Footer content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 text-center md:text-left">
+      <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8 text-center md:text-left">
         
         {/* Logo / About */}
         <div>
@@ -54,23 +51,9 @@ const Footer = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="relative z-10 border-t border-gray-700 mt-10 pt-4 text-center text-xs text-gray-400">
+      <div className="border-t border-gray-800 mt-10 pt-4 text-center text-xs text-gray-400">
         © {new Date().getFullYear()} Academic Resource Hub. All rights reserved.
       </div>
-
-      {/* Glow animation */}
-      <style>
-        {`
-          @keyframes glow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-          }
-          .animate-glow {
-            background-size: 200% 200%;
-            animation: glow 6s ease-in-out infinite;
-          }
-        `}
-      </style>
     </footer>
   );
 };
