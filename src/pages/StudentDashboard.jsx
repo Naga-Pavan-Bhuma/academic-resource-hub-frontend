@@ -7,6 +7,8 @@ import DiscussionBoard from "../sections/DiscussionBoard";
 import Leaderboard from "../sections/Leaderboard";
 import PageWrapper from "../sections/PageWrapper";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api"; // LAN IP
+
 const StudentDashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,16 +17,21 @@ const StudentDashboard = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
+        if (!token) throw new Error("No token found");
+
+        const res = await axios.get(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setUser(res.data.user);
       } catch (err) {
-        console.error(err);
+        console.error("Fetch user failed:", err);
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
+
     fetchUser();
   }, []);
 
@@ -38,7 +45,7 @@ const StudentDashboard = () => {
   if (!user)
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500 text-lg">
-        User not found
+        ⚠️ User not found. Please login again.
       </div>
     );
 
@@ -47,10 +54,7 @@ const StudentDashboard = () => {
       <NavbarLoggedIn userName={user.name} profileImg={user.profileImg} />
 
       <Routes>
-        {/* Default redirect */}
         <Route path="/" element={<Navigate to="resources" />} />
-
-        {/* Nested routes */}
         <Route
           path="resources"
           element={

@@ -5,60 +5,72 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import axios from "axios";
 
+// ===== API BASE =====
+const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api"; // change to your laptop LAN IP
+
+// ===== API CALLS =====
+const loginUser = async (email, password) => {
+  try {
+    const res = await axios.post(`${API_BASE}/auth/login`, { email, password });
+    return res.data;
+  } catch (err) {
+    if (err.response) {
+      throw new Error(err.response.data.message || "Backend error");
+    } else if (err.request) {
+      throw new Error("Network error: cannot reach backend");
+    } else {
+      throw new Error(err.message);
+    }
+  }
+};
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate(); // <-- added
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // ====== Handle Login ======
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email: email + "@rguktrkv.ac.in",
-        password,
-      });
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-
-        // ✅ redirect to student dashboard
+      const data = await loginUser(email + "@rguktrkv.ac.in", password);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
         navigate("/student");
       } else {
-        alert(res.data.message);
+        alert(data.message || "Login failed");
       }
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Something went wrong");
+      alert("⚠️ " + err.message); // show exact error
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ====== Google Signin ======
+  // ====== Google Sign-in ======
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      if (!user.email.endsWith("@rguktrkv.ac.in"))
+      if (!user.email.endsWith("@rguktrkv.ac.in")) {
         return alert("Use your college email only");
+      }
 
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email: user.email,
-        password: "google-auth",
-      });
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-
-        // ✅ redirect to student dashboard
+      const data = await loginUser(user.email, "google-auth"); // backend must handle this case
+      if (data.token) {
+        localStorage.setItem("token", data.token);
         navigate("/student");
       } else {
-        alert(res.data.message);
+        alert(data.message || "Google login failed");
       }
     } catch (err) {
-      console.error(err);
-      alert("Google sign-in failed");
+      console.error("Google login error:", err);
+      alert("⚠️ Google sign-in failed: " + err.message);
     }
   };
 
@@ -117,9 +129,10 @@ const Login = () => {
           {/* Submit */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-3 rounded-lg font-medium transform hover:scale-[1.02] transition-all duration-300 shadow-lg bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           {/* Divider */}

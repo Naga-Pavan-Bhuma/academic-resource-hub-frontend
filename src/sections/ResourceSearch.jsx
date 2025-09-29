@@ -11,8 +11,8 @@ const resources = [
   { id: "R006", title: "Python Machine Learning", subject: "Python", uploadedBy: "Kiran", year: "4", sem: "2", file: "/pdfs/python.pdf" },
 ];
 
-const years = ["1", "2", "3", "4"];
-const semesters = ["1", "2"];
+const years = ["P1", "P2", "E1", "E2", "E3", "E4"];
+const semesters = ["Sem 1", "Sem 2"]
 
 const ResourceSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,8 +1,25 @@
-// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import axios from "axios";
+
+// ===== API BASE =====
+const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api"; // LAN IP
+
+const signupUser = async (userData) => {
+  try {
+    const res = await axios.post(`${API_BASE}/auth/signup`, userData);
+    return res.data;
+  } catch (err) {
+    if (err.response) {
+      throw new Error(err.response.data.message || "Backend error");
+    } else if (err.request) {
+      throw new Error("Network error: cannot reach backend");
+    } else {
+      throw new Error(err.message);
+    }
+  }
+};
 
 const Signup = () => {
   // Form state
@@ -15,17 +32,18 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // ====== Signup ======
   const handleSignup = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) return alert("Passwords do not match");
+    setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signup", {
+      const data = await signupUser({
         name,
         collegeId,
         email: email + "@rguktrkv.ac.in",
@@ -35,15 +53,18 @@ const Signup = () => {
         password,
       });
 
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
         alert("Signup successful 🎉");
+        window.location.href = "/student"; // redirect to dashboard
       } else {
-        alert(res.data.message);
+        alert(data.message || "Signup failed");
       }
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Something went wrong");
+      console.error("Signup error:", err);
+      alert("⚠️ " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,25 +77,26 @@ const Signup = () => {
       if (!user.email.endsWith("@rguktrkv.ac.in"))
         return alert("Use your college email only");
 
-      const res = await axios.post("http://localhost:5000/api/auth/signup", {
+      const data = await signupUser({
         name: user.displayName,
         email: user.email,
-        password: Math.random().toString(36).slice(-8), // random pwd
+        password: Math.random().toString(36).slice(-8),
         collegeId: "N/A",
         mobile: "",
         year: "",
         branch: "",
       });
 
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
         alert("Google signup successful 🎉");
+        window.location.href = "/student"; // redirect
       } else {
-        alert(res.data.message);
+        alert(data.message || "Google signup failed");
       }
     } catch (err) {
-      console.error(err);
-      alert("Google sign-in failed");
+      console.error("Google signup error:", err);
+      alert("⚠️ Google sign-in failed: " + err.message);
     }
   };
 
@@ -211,9 +233,10 @@ const Signup = () => {
           {/* Submit */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-3 rounded-lg font-medium transform hover:scale-[1.02] transition-all duration-300 shadow-lg bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl"
           >
-            Sign Up
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
 
           {/* Divider */}
