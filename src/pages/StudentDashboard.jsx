@@ -91,7 +91,7 @@ const StudentDashboard = () => {
           path="leaderboard"
           element={
             <PageWrapper>
-              <Leaderboard />
+              <Leaderboard user={user} />
             </PageWrapper>
           }
         />

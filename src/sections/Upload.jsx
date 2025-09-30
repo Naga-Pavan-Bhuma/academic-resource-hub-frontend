@@ -5,6 +5,7 @@ import axios from "axios";
 const Upload = ({ user }) => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploaded, setUploaded] = useState(false);
   const [url, setUrl] = useState("");
   const [progress, setProgress] = useState(0);
   const [metadata, setMetadata] = useState({
@@ -33,10 +34,9 @@ const Upload = ({ user }) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "academic_resources");
-    formData.append("resource_type", "raw"); // use 'auto' for public PDFs
+    formData.append("resource_type", "raw");
 
     try {
-      // Upload PDF to Cloudinary
       const res = await axios.post(
         "https://api.cloudinary.com/v1_1/dsvroldwr/raw/upload",
         formData,
@@ -51,7 +51,6 @@ const Upload = ({ user }) => {
       const uploadedFileUrl = res.data.secure_url;
       setUrl(uploadedFileUrl);
 
-      // Send metadata + Cloudinary URL + user info to backend
       await axios.post(`${API_BASE}/resources`, {
         ...metadata,
         uploadedBy: user?.name,
@@ -60,7 +59,7 @@ const Upload = ({ user }) => {
         unitNumber: Number(metadata.unitNumber),
       });
 
-      alert("✅ PDF uploaded and metadata saved successfully!");
+      setUploaded(true); // ✅ success state
     } catch (err) {
       console.error(err);
       alert("⚠️ Upload failed! Check console for details.");
@@ -199,31 +198,45 @@ const Upload = ({ user }) => {
               />
             </div>
           )}
-
-          {/* Upload Button */}
-          <motion.button
-            onClick={handleUpload}
-            className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg ${
-              uploading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-cyan-500/80 hover:bg-cyan-400/80 hover:scale-105 transition-transform duration-300"
-            } backdrop-blur-sm`}
-            disabled={uploading}
-            whileHover={{ scale: uploading ? 1 : 1.05 }}
-          >
-            {uploading ? "Uploading..." : "Upload PDF"}
-          </motion.button>
-          {/* Uploaded URL */}
           {url && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mt-4 bg-white/30 px-4 py-2 rounded-xl shadow-md text-indigo-800 text-center break-all backdrop-blur-sm border border-white/20"
+              className="mt-4 bg-white/30 px-4 py-2 rounded-xl shadow-md text-cyan-500 text-center break-all backdrop-blur-sm border border-white/20"
             >
-              Hurrah!! PDF Uploaded Successfully and got +10 points!
+              <b>Hurrah!! PDF Uploaded Successfully and got +10 points!</b><br />
+              <b>Your Current Points: <span className="text-orange-500">{user?.points + 10}</span></b>
             </motion.div>
           )}
+          {/* Upload Button */}
+          {!uploaded ? (
+            <motion.button
+              onClick={handleUpload}
+              className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg ${
+                uploading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-cyan-500/80 hover:bg-cyan-400/80 hover:scale-105 transition-transform duration-300"
+              } backdrop-blur-sm`}
+              disabled={uploading}
+              whileHover={{ scale: uploading ? 1 : 1.05 }}
+            >
+              {uploading
+                ? "Uploading..."
+                : uploaded
+                ? "✅ Uploaded Successfully!"
+                : "Upload PDF"}
+            </motion.button>
+          ) : (
+            <motion.button
+              onClick={() => window.location.reload()}
+              className="px-8 py-3 rounded-xl font-bold text-white shadow-lg bg-green-500 hover:bg-green-400 hover:scale-105 transition-transform duration-300 backdrop-blur-sm"
+              whileHover={{ scale: 1.05 }}
+            >
+              Click to Upload Another PDF
+            </motion.button>
+          )}
+          
           {/* PDF Preview */}
           {url && (
             <motion.div

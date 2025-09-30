@@ -123,7 +123,7 @@ const ResourceSearch = () => {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setViewPdf(res.file)} // ✅ This triggers PDF fullscreen
+                  onClick={() => setViewPdf(res.file)} 
                   className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 text-white py-2 rounded-2xl hover:bg-cyan-600 hover:scale-105 transition"
                 >
                   <FaEye /> View PDF
