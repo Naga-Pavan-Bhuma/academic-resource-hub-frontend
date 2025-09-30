@@ -1,39 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaBook, FaEye } from "react-icons/fa";
+import axios from "axios";
 import PDFViewer from "./PDFViewer";
 
-const resources = [
-  { id: "R001", title: "DBMS Notes", subject: "Database", uploadedBy: "Arjun", year: "3", sem: "2", file: "/SVM.pdf" },
-  { id: "R002", title: "CN Previous Year Notes", subject: "Computer Networks", uploadedBy: "Meena", year: "3", sem: "1", file: "/pdfs/cn.pdf" },
-  { id: "R003", title: "Data Structures PDF", subject: "DSA", uploadedBy: "Tejaswi", year: "2", sem: "2", file: "/pdfs/dsa.pdf" },
-  { id: "R004", title: "Operating Systems Slides", subject: "OS", uploadedBy: "Rahul", year: "3", sem: "1", file: "/pdfs/os.pdf" },
-  { id: "R005", title: "Java Programming Guide", subject: "Java", uploadedBy: "Sneha", year: "2", sem: "1", file: "/pdfs/java.pdf" },
-  { id: "R006", title: "Python Machine Learning", subject: "Python", uploadedBy: "Kiran", year: "4", sem: "2", file: "/pdfs/python.pdf" },
-];
-
 const years = ["P1", "P2", "E1", "E2", "E3", "E4"];
-const semesters = ["Sem 1", "Sem 2"]
+const semesters = ["Sem-1", "Sem-2"];
 
 const ResourceSearch = () => {
+  const [resources, setResources] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSem, setSelectedSem] = useState("");
   const [viewPdf, setViewPdf] = useState(null);
 
+  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+
+  // Fetch resources from backend
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/resources`);
+        setResources(res.data);
+      } catch (err) {
+        console.error("Error fetching resources:", err);
+      }
+    };
+
+    fetchResources();
+  }, []);
+
   const filteredResources = resources.filter(
     (res) =>
-      (res.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.uploadedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        res.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (res.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        res.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        res.uploadedBy?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        res.collegeId?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedYear ? res.year === selectedYear : true) &&
       (selectedSem ? res.sem === selectedSem : true)
   );
 
   return (
-    <section className="p-6 min-h-screen bg-gradient-to-b from-white/30 to-white/20 backdrop-blur-lg">
-      <h2 className="text-3xl md:text-4xl font-bold text-cyan-700 mb-8 text-center">
-        📚 Discover Your Resources
+    <section className="p-6 min-h-screen bg-gradient-to-b from-white/30 to-white/20 backdrop-blur-lg relative">
+      <h2 className="text-3xl md:text-4xl font-bold text-cyan-500 mb-8 text-center">
+        Discover Your Resources
       </h2>
 
       {/* Filters */}
@@ -51,7 +60,11 @@ const ResourceSearch = () => {
           className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-400"
         >
           <option value="">Year</option>
-          {years.map((year) => <option key={year} value={year}>{year}</option>)}
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
         </select>
         <select
           value={selectedSem}
@@ -59,7 +72,11 @@ const ResourceSearch = () => {
           className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-400"
         >
           <option value="">Semester</option>
-          {semesters.map((sem) => <option key={sem} value={sem}>{sem}</option>)}
+          {semesters.map((sem) => (
+            <option key={sem} value={sem}>
+              {sem}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -67,28 +84,66 @@ const ResourceSearch = () => {
       {filteredResources.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredResources.map((res) => (
-            <div key={res.id} className="bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:scale-105 transition cursor-pointer">
+            <div
+              key={res._id || res.id}
+              className="bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:scale-105 transition cursor-pointer"
+            >
               <div className="flex items-center gap-3 mb-2">
                 <FaBook className="text-cyan-400 text-2xl" />
-                <h3 className="font-semibold text-lg text-gray-900">{res.title}</h3>
+                <h3 className="font-semibold text-lg text-gray-900">
+                  {res.title}
+                </h3>
               </div>
-              <p className="text-sm text-gray-700 mb-2">Uploaded by <span className="font-medium">{res.uploadedBy}</span></p>
-              <p className="text-sm text-gray-700 mb-4">ID: <span className="font-medium">{res.id}</span></p>
+              <p className="text-sm text-gray-700 mb-2">
+                Uploaded by{" "}
+                <span className="font-medium">{res.uploadedBy}</span>
+              </p>
+              <p className="text-sm text-gray-700 mb-2">
+                ID:{" "}
+                <span className="font-medium">
+                  {res._collegeId || res.collegeId}
+                </span>
+              </p>
+              <p className="text-sm text-gray-700 mb-4">
+                Unit:{" "}
+                <span className="font-medium">
+                  {res._unitNumber || res.unitNumber}
+                </span>
+              </p>
               <div className="flex gap-2 flex-wrap mb-5">
-                <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full">{res.subject}</span>
-                <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full">Year {res.year}</span>
-                <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full">Sem {res.sem}</span>
+                <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full">
+                  {res.subject}
+                </span>
+                <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full">
+                  Year {res.year}
+                </span>
+                <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full">
+                  {res.sem}
+                </span>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => setViewPdf(res.file)} className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 text-white py-2 rounded-2xl hover:bg-cyan-600 hover:scale-105 transition"><FaEye /> View PDF</button>
+                <button
+                  onClick={() => setViewPdf(res.file)} // ✅ This triggers PDF fullscreen
+                  className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 text-white py-2 rounded-2xl hover:bg-cyan-600 hover:scale-105 transition"
+                >
+                  <FaEye /> View PDF
+                </button>
               </div>
             </div>
           ))}
         </div>
-      ) : <p className="text-center text-gray-600 font-medium mt-10">😔 No resources found!</p>}
+      ) : (
+        <p className="text-center text-gray-600 font-medium mt-10">
+          😔 No resources found!
+        </p>
+      )}
 
-      {/* PDF Modal */}
-      {viewPdf && <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />}
+      {/* Fullscreen PDF Viewer Overlay */}
+      {viewPdf && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
+          <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />
+        </div>
+      )}
     </section>
   );
 };

@@ -6,12 +6,16 @@ import ResourceSearch from "../sections/ResourceSearch";
 import DiscussionBoard from "../sections/DiscussionBoard";
 import Leaderboard from "../sections/Leaderboard";
 import PageWrapper from "../sections/PageWrapper";
+import Upload from "../sections/Upload";
+import PDFViewer from "../sections/PDFViewer";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api"; // LAN IP
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api";
 
 const StudentDashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [viewPdf, setViewPdf] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,6 +53,10 @@ const StudentDashboard = () => {
       </div>
     );
 
+  if (viewPdf) {
+    return <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />;
+  }
+
   return (
     <div className="min-h-screen bg-white relative">
       <NavbarLoggedIn userName={user.name} profileImg={user.profileImg} />
@@ -59,7 +67,7 @@ const StudentDashboard = () => {
           path="resources"
           element={
             <PageWrapper>
-              <ResourceSearch />
+              <ResourceSearch setViewPdf={setViewPdf} />
             </PageWrapper>
           }
         />
@@ -68,6 +76,14 @@ const StudentDashboard = () => {
           element={
             <PageWrapper>
               <DiscussionBoard />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="upload"
+          element={
+            <PageWrapper>
+              <Upload user={user} />
             </PageWrapper>
           }
         />

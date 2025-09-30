@@ -13,8 +13,8 @@ const discussions = [
 const DiscussionBoard = () => {
   return (
     <section className="p-6 min-h-screen">
-      <h2 className="text-3xl font-fredoka font-bold text-cyan-700 mb-8 text-center">
-        💬 Recent Discussions
+      <h2 className="text-3xl font-fredoka font-bold text-cyan-500 mb-8 text-center">
+        Recent Discussions
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

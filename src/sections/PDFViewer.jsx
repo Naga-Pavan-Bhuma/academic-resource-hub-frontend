@@ -9,6 +9,7 @@ import {
   FaArrowRight,
   FaDownload,
 } from "react-icons/fa";
+import axios from "axios";
 
 // Vite-compatible worker setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -23,20 +24,51 @@ const PDFViewer = ({ file, onClose }) => {
   const [scale, setScale] = useState(1.2);
   const [rotate, setRotate] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [loadingPercent, setLoadingPercent] = useState(0);
 
   const pageCanvases = useRef([]);
+  const [blobUrl, setBlobUrl] = useState(null);
 
-  // Load PDF
+  // Load PDF via Axios to track progress
   useEffect(() => {
     const loadPDF = async () => {
-      const pdf = await pdfjsLib.getDocument(file).promise;
-      setPdfDoc(pdf);
-      setNumPages(pdf.numPages);
+      setLoading(true);
+      setLoadingPercent(0);
+      try {
+        const response = await axios.get(file, {
+          responseType: "blob",
+          onDownloadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percent = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              setLoadingPercent(percent);
+            }
+          },
+        });
+
+        const url = URL.createObjectURL(response.data);
+        setBlobUrl(url);
+
+        const pdf = await pdfjsLib.getDocument(url).promise;
+        setPdfDoc(pdf);
+        setNumPages(pdf.numPages);
+      } catch (err) {
+        console.error("Failed to load PDF:", err);
+        alert("⚠️ Failed to load PDF!");
+      } finally {
+        setLoading(false);
+      }
     };
     loadPDF();
+
+    // Clean up blob URL
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
   }, [file]);
 
-  // Render single page
   const renderPage = async (pageNum) => {
     if (!pdfDoc) return;
     const page = await pdfDoc.getPage(pageNum);
@@ -54,11 +86,9 @@ const PDFViewer = ({ file, onClose }) => {
     canvas.style.height = "auto";
 
     pageCanvases.current[pageNum - 1] = { canvas, offsetTop: 0 };
-
     return canvas;
   };
 
-  // Render all pages
   useEffect(() => {
     const renderAllPages = async () => {
       if (!pdfDoc || !containerRef.current) return;
@@ -69,26 +99,26 @@ const PDFViewer = ({ file, onClose }) => {
         containerRef.current.appendChild(canvas);
       }
 
-      // Calculate offsetTop for each canvas
       pageCanvases.current.forEach((p) => {
         p.offsetTop = p.canvas.offsetTop;
       });
 
-      setCurrentPage(1); // Reset page counter
+      setCurrentPage(1);
     };
     renderAllPages();
   }, [pdfDoc, scale, rotate, numPages]);
 
-  // Scroll to page
   const scrollToPage = (pageNum) => {
     const pageObj = pageCanvases.current[pageNum - 1];
     if (pageObj && containerRef.current) {
-      containerRef.current.scrollTo({ top: pageObj.offsetTop, behavior: "smooth" });
+      containerRef.current.scrollTo({
+        top: pageObj.offsetTop,
+        behavior: "smooth",
+      });
       setCurrentPage(pageNum);
     }
   };
 
-  // Prev / Next
   const prevPage = () => {
     if (currentPage > 1) scrollToPage(currentPage - 1);
   };
@@ -96,7 +126,6 @@ const PDFViewer = ({ file, onClose }) => {
     if (currentPage < numPages) scrollToPage(currentPage + 1);
   };
 
-  // Update current page on manual scroll
   const handleScroll = () => {
     const scrollTop = containerRef.current.scrollTop;
     for (let i = 0; i < pageCanvases.current.length; i++) {
@@ -111,7 +140,6 @@ const PDFViewer = ({ file, onClose }) => {
     }
   };
 
-  // Keyboard support
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "ArrowRight") nextPage();
@@ -125,10 +153,10 @@ const PDFViewer = ({ file, onClose }) => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [currentPage, scale, rotate, onClose]);
 
-  // Download PDF
   const downloadPDF = () => {
+    if (!blobUrl) return;
     const link = document.createElement("a");
-    link.href = file;
+    link.href = blobUrl;
     link.download = file.split("/").pop() || "document.pdf";
     link.click();
   };
@@ -165,7 +193,9 @@ const PDFViewer = ({ file, onClose }) => {
           >
             <FaArrowLeft /> Prev
           </button>
-          <span className="px-2">{currentPage} / {numPages}</span>
+          <span className="px-2">
+            {currentPage} / {numPages}
+          </span>
           <button
             onClick={nextPage}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 flex items-center gap-1"
@@ -192,8 +222,15 @@ const PDFViewer = ({ file, onClose }) => {
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 w-full overflow-y-auto bg-gray-100 p-6 flex flex-col items-center"
-      ></div>
+        className="flex-1 w-full overflow-y-auto bg-gray-100 p-6 flex flex-col items-center relative"
+      >
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 font-semibold">
+            <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent border-b-transparent rounded-full animate-spin mb-2"></div>
+            Loading PDF... {loadingPercent}%
+          </div>
+        )}
+      </div>
     </div>
   );
 };

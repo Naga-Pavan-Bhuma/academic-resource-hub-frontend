@@ -1,12 +1,10 @@
 // src/pages/Login.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
 import axios from "axios";
 
 // ===== API BASE =====
-const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api"; // change to your laptop LAN IP
+const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api";
 
 // ===== API CALLS =====
 const loginUser = async (email, password) => {
@@ -14,13 +12,20 @@ const loginUser = async (email, password) => {
     const res = await axios.post(`${API_BASE}/auth/login`, { email, password });
     return res.data;
   } catch (err) {
-    if (err.response) {
-      throw new Error(err.response.data.message || "Backend error");
-    } else if (err.request) {
-      throw new Error("Network error: cannot reach backend");
-    } else {
-      throw new Error(err.message);
-    }
+    if (err.response) throw new Error(err.response.data.message || "Backend error");
+    else if (err.request) throw new Error("Network error: cannot reach backend");
+    else throw new Error(err.message);
+  }
+};
+
+const loginUserWithGoogle = async (jwt) => {
+  try {
+    const res = await axios.post(`${API_BASE}/auth/google-login`, { token: jwt });
+    return res.data;
+  } catch (err) {
+    if (err.response) throw new Error(err.response.data.message || "Backend error");
+    else if (err.request) throw new Error("Network error: cannot reach backend");
+    else throw new Error(err.message);
   }
 };
 
@@ -31,7 +36,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ====== Handle Login ======
+  // ===== Handle email/password login =====
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -44,24 +49,24 @@ const Login = () => {
         alert(data.message || "Login failed");
       }
     } catch (err) {
-      alert("⚠️ " + err.message); // show exact error
+      alert("⚠️ " + err.message);
       console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // ====== Google Sign-in ======
-  const handleGoogleSignIn = async () => {
+  // ===== Handle Google login response =====
+  const handleGoogleResponse = async (response) => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
+      const jwt = response.credential;
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
 
-      if (!user.email.endsWith("@rguktrkv.ac.in")) {
+      if (!payload.email.endsWith("@rguktrkv.ac.in")) {
         return alert("Use your college email only");
       }
 
-      const data = await loginUser(user.email, "google-auth"); // backend must handle this case
+      const data = await loginUserWithGoogle(jwt);
       if (data.token) {
         localStorage.setItem("token", data.token);
         navigate("/student");
@@ -74,6 +79,37 @@ const Login = () => {
     }
   };
 
+  // ===== Render Google button without auto-popup =====
+  useEffect(() => {
+    const renderGoogleButton = () => {
+      if (window.google && document.getElementById("googleSignInDiv")) {
+        console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID);
+        google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+        });
+
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignInDiv"),
+          { theme: "outline", size: "large", width: "100%" }
+        );
+
+        // Removed auto-popup
+        // google.accounts.id.prompt();
+      }
+    };
+
+    if (window.google) renderGoogleButton();
+    else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = renderGoogleButton;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gray-50 overflow-hidden pt-24">
       {/* Background blobs */}
@@ -83,16 +119,12 @@ const Login = () => {
 
       {/* Card */}
       <div className="relative bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl p-8 w-full max-w-md border border-gray-200">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Welcome Back 👋
-        </h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back 👋</h2>
 
         <form className="space-y-5" onSubmit={handleLogin}>
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              College Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">College Email</label>
             <div className="flex items-center">
               <input
                 type="text"
@@ -142,28 +174,14 @@ const Login = () => {
             <hr className="flex-grow border-gray-300" />
           </div>
 
-          {/* Google */}
-          <button
-            type="button"
-            className="flex items-center gap-2 border py-3 px-4 rounded-lg w-full justify-center hover:bg-gray-50 transition"
-            onClick={handleGoogleSignIn}
-          >
-            <img
-              src="https://www.svgrepo.com/show/355037/google.svg"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Continue with Google
-          </button>
+          {/* Google Sign-In */}
+          <div id="googleSignInDiv" className="w-full"></div>
         </form>
 
         {/* Switch to Signup */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-600 hover:text-blue-800 font-medium transition"
-          >
+          <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium transition">
             Sign up
           </Link>
         </p>

@@ -1,28 +1,22 @@
 import React, { useState } from "react";
-import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 // ===== API BASE =====
-const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api"; // LAN IP
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
 const signupUser = async (userData) => {
   try {
     const res = await axios.post(`${API_BASE}/auth/signup`, userData);
     return res.data;
   } catch (err) {
-    if (err.response) {
-      throw new Error(err.response.data.message || "Backend error");
-    } else if (err.request) {
-      throw new Error("Network error: cannot reach backend");
-    } else {
-      throw new Error(err.message);
-    }
+    if (err.response) throw new Error(err.response.data.message || "Backend error");
+    else if (err.request) throw new Error("Network error: cannot reach backend");
+    else throw new Error(err.message);
   }
 };
 
 const Signup = () => {
-  // Form state
   const [name, setName] = useState("");
   const [collegeId, setCollegeId] = useState("");
   const [mobile, setMobile] = useState("");
@@ -31,17 +25,14 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ====== Signup ======
   const handleSignup = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) return alert("Passwords do not match");
     setLoading(true);
-
     try {
       const data = await signupUser({
         name,
@@ -52,51 +43,17 @@ const Signup = () => {
         branch,
         password,
       });
-
       if (data.token) {
         localStorage.setItem("token", data.token);
         alert("Signup successful 🎉");
-        window.location.href = "/student"; // redirect to dashboard
+        window.location.href = "/student";
       } else {
         alert(data.message || "Signup failed");
       }
     } catch (err) {
-      console.error("Signup error:", err);
       alert("⚠️ " + err.message);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // ====== Google Signin ======
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      if (!user.email.endsWith("@rguktrkv.ac.in"))
-        return alert("Use your college email only");
-
-      const data = await signupUser({
-        name: user.displayName,
-        email: user.email,
-        password: Math.random().toString(36).slice(-8),
-        collegeId: "N/A",
-        mobile: "",
-        year: "",
-        branch: "",
-      });
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        alert("Google signup successful 🎉");
-        window.location.href = "/student"; // redirect
-      } else {
-        alert(data.message || "Google signup failed");
-      }
-    } catch (err) {
-      console.error("Google signup error:", err);
-      alert("⚠️ Google sign-in failed: " + err.message);
     }
   };
 
@@ -109,9 +66,7 @@ const Signup = () => {
 
       {/* Card */}
       <div className="relative bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl p-8 w-full max-w-xl border border-gray-200 max-h-[calc(100vh-4rem)] overflow-y-auto">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Create Account
-        </h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Create Account</h2>
 
         <form className="space-y-5" onSubmit={handleSignup}>
           {/* Name + College ID */}
@@ -176,9 +131,7 @@ const Signup = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              College Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">College Email</label>
             <div className="flex items-center">
               <input
                 type="text"
@@ -239,26 +192,13 @@ const Signup = () => {
             {loading ? "Signing up..." : "Sign Up"}
           </button>
 
-          {/* Divider */}
-          <div className="flex items-center gap-2 my-4">
-            <hr className="flex-grow border-gray-300" />
-            <span className="text-sm text-gray-500">or</span>
-            <hr className="flex-grow border-gray-300" />
-          </div>
-
-          {/* Google */}
-          <button
-            type="button"
-            className="flex items-center gap-2 border py-3 px-4 rounded-lg w-full justify-center hover:bg-gray-50 transition"
-            onClick={handleGoogleSignIn}
-          >
-            <img
-              src="https://www.svgrepo.com/show/355037/google.svg"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Continue with Google
-          </button>
+          {/* Already have account */}
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-600 hover:underline">
+              Login
+            </Link>
+          </p>
         </form>
       </div>
 

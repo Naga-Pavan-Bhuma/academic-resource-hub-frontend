@@ -14,6 +14,7 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
   const navItems = [
     { name: "Resources", path: "/student/resources" },
     { name: "Discussions", path: "/student/discussions" },
+    { name: "Upload", path: "/student/upload" },
     { name: "Leaderboard", path: "/student/leaderboard" },
   ];
 
@@ -48,11 +49,6 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
         {/* Desktop User Menu */}
         <div className="hidden md:flex items-center gap-4">
           <div className="flex items-center gap-2 cursor-pointer">
-            <img
-              src={profileImg || "https://via.placeholder.com/32"}
-              alt="Profile"
-              className="w-8 h-8 rounded-full object-cover"
-            />
             <span className="font-medium text-gray-900">{userName}</span>
           </div>
           <button

@@ -1,27 +1,32 @@
-import React from "react";
-
-const leaderboardData = [
-  { name: "Tejaswi", points: 120 },
-  { name: "Arjun", points: 95 },
-  { name: "Meena", points: 80 },
-  { name: "Rahul", points: 70 },
-  { name: "Sneha", points: 65 },
-  { name: "Kiran", points: 60 },
-  { name: "Anita", points: 55 },
-];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const Leaderboard = () => {
+  const [leaderboardData, setLeaderboardData] = useState([]);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/leaderboard"); 
+        setLeaderboardData(res.data);
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      }
+    };
+    fetchLeaderboard();
+  }, []);
+
   return (
     <section className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl p-6 hover:scale-105 transition-transform duration-300">
       {/* Heading */}
-      <h2 className="text-center font-fredoka font-bold text-2xl mb-6 text-cyan-700 flex justify-center items-center gap-2">
-        🏆 Leaderboard
+      <h2 className="text-center font-fredoka font-bold text-2xl mb-6 text-cyan-500 flex justify-center items-center gap-2">
+        Leaderboard
       </h2>
 
       <ul className="space-y-3">
         {leaderboardData.map((user, index) => (
           <li
-            key={index}
+            key={user._id}
             className="flex justify-between items-center px-4 py-2 rounded-2xl hover:bg-white/30 transition shadow-sm"
           >
             <div className="flex items-center gap-3">
