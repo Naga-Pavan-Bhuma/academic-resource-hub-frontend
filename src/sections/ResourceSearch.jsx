@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { FaBook, FaEye } from "react-icons/fa";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  FaBook,
+  FaEye,
+  FaShareAlt,
+  FaWhatsapp,
+  FaTelegramPlane,
+  FaEnvelope,
+  FaLink,
+  FaTimes,
+} from "react-icons/fa";
 import axios from "axios";
 import PDFViewer from "./PDFViewer";
 
@@ -12,12 +21,14 @@ const ResourceSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSem, setSelectedSem] = useState("");
-  const [selectedBranch, setSelectedBranch] = useState(""); // added branch filter
+  const [selectedBranch, setSelectedBranch] = useState("");
   const [viewPdf, setViewPdf] = useState(null);
+  const [shareResource, setShareResource] = useState(null);
+  const [shareBtnRef, setShareBtnRef] = useState(null);
 
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
-  // Fetch resources from backend
+  // Fetch resources
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -27,7 +38,6 @@ const ResourceSearch = () => {
         console.error("Error fetching resources:", err);
       }
     };
-
     fetchResources();
   }, []);
 
@@ -39,8 +49,14 @@ const ResourceSearch = () => {
         res.collegeId?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedYear ? res.year === selectedYear : true) &&
       (selectedSem ? res.sem === selectedSem : true) &&
-      (selectedBranch ? res.branch === selectedBranch : true) // branch filter
+      (selectedBranch ? res.branch === selectedBranch : true)
   );
+
+  const handleCopyLink = (url) => {
+    navigator.clipboard.writeText(url);
+    alert("Link copied!");
+    setShareResource(null);
+  };
 
   return (
     <section className="p-6 min-h-screen bg-gradient-to-b from-white/30 to-white/20 backdrop-blur-lg relative">
@@ -101,47 +117,121 @@ const ResourceSearch = () => {
           {filteredResources.map((res) => (
             <div
               key={res._id || res.id}
-              className="bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:scale-105 transition cursor-pointer"
+              className="bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:scale-105 transition relative"
             >
               <div className="flex items-center gap-3 mb-2">
                 <FaBook className="text-cyan-400 text-2xl" />
-                <h3 className="font-semibold text-lg text-gray-900">{res.title}</h3>
+                <h3 className="font-semibold text-lg text-gray-900">
+                  {res.title}
+                </h3>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                Uploaded by <span className="font-medium">{res.uploadedBy}</span>
+                Uploaded by{" "}
+                <span className="font-medium">{res.uploadedBy}</span>
               </p>
               <p className="text-sm text-gray-700 mb-2">
-                ID: <span className="font-medium">{res._collegeId || res.collegeId}</span>
+                ID:{" "}
+                <span className="font-medium">
+                  {res._collegeId || res.collegeId}
+                </span>
               </p>
               <p className="text-sm text-gray-700 mb-4">
-                Unit: <span className="font-medium">{res._unitNumber || res.unitNumber}</span>
+                Unit:{" "}
+                <span className="font-medium">
+                  {res._unitNumber || res.unitNumber}
+                </span>
               </p>
               <div className="flex gap-2 flex-wrap mb-5">
-                <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full">{res.subject}</span>
-                <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full">Year {res.year}</span>
-                <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full">{res.sem}</span>
+                <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full">
+                  {res.subject}
+                </span>
+                <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full">
+                  Year {res.year}
+                </span>
+                <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full">
+                  {res.sem}
+                </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 mt-3 relative">
+                {/* View PDF Button */}
                 <button
                   onClick={() => setViewPdf(res.file)}
                   className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 text-white py-2 rounded-2xl hover:bg-cyan-600 hover:scale-105 transition"
                 >
                   <FaEye /> View PDF
                 </button>
+
+                {/* Share Button */}
+                <button
+                  ref={(el) => setShareBtnRef(el)}
+                  onClick={() => setShareResource(res)}
+                  className="flex items-center justify-center gap-2 bg-gray-200 text-gray-800 py-2 px-3 rounded-2xl hover:bg-gray-300 hover:scale-105 transition relative"
+                >
+                  <FaShareAlt /> Share
+                </button>
+
+                {/* Share Modal */}
+                {shareResource === res && shareBtnRef && (
+                  <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-xl p-3 flex items-center gap-2 z-50">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setShareResource(null)}
+                      className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-full"
+                    >
+                      <FaTimes />
+                    </button>
+
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        res.file
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition flex items-center justify-center"
+                    >
+                      <FaWhatsapp />
+                    </a>
+
+                    <a
+                      href={`https://t.me/share/url?url=${encodeURIComponent(
+                        res.file
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition flex items-center justify-center"
+                    >
+                      <FaTelegramPlane />
+                    </a>
+
+                    <a
+                      href={`mailto:?subject=Check this resource&body=${encodeURIComponent(
+                        res.file
+                      )}`}
+                      className="bg-purple-500 text-white p-3 rounded-full hover:bg-purple-600 transition flex items-center justify-center"
+                    >
+                      <FaEnvelope />
+                    </a>
+
+                    <button
+                      onClick={() => handleCopyLink(res.file)}
+                      className="bg-gray-300 text-gray-800 p-3 rounded-full hover:bg-gray-400 transition flex items-center justify-center"
+                    >
+                      <FaLink />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-600 font-medium mt-10">😔 No resources found!</p>
+        <p className="text-center text-gray-600 font-medium mt-10">
+          😔 No resources found!
+        </p>
       )}
 
-      {/* Fullscreen PDF Viewer Overlay */}
-      {viewPdf && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
-          <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />
-        </div>
-      )}
+      {/* Fullscreen PDF Viewer */}
+      {viewPdf && <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />}
     </section>
   );
 };
