@@ -181,43 +181,60 @@ const ResourceSearch = () => {
                       <FaTimes />
                     </button>
 
-                    <a
-                      href={`https://wa.me/?text=${encodeURIComponent(
-                        res.file
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition flex items-center justify-center"
-                    >
-                      <FaWhatsapp />
-                    </a>
+                    {/* Construct student-vibe message */}
+                    {(() => {
+                      const msg = `Hey! Check out this awesome resource: "${
+                        res.title
+                      }" for ${res.subject} - Unit ${
+                        res._unitNumber || res.unitNumber
+                      }!\n`;
 
-                    <a
-                      href={`https://t.me/share/url?url=${encodeURIComponent(
-                        res.file
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition flex items-center justify-center"
-                    >
-                      <FaTelegramPlane />
-                    </a>
+                      return (
+                        <>
+                          {/* WhatsApp */}
+                          <a
+                            href={`https://wa.me/?text=${encodeURIComponent(
+                              msg + " " + res.file
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition flex items-center justify-center"
+                          >
+                            <FaWhatsapp />
+                          </a>
 
-                    <a
-                      href={`mailto:?subject=Check this resource&body=${encodeURIComponent(
-                        res.file
-                      )}`}
-                      className="bg-purple-500 text-white p-3 rounded-full hover:bg-purple-600 transition flex items-center justify-center"
-                    >
-                      <FaEnvelope />
-                    </a>
+                          {/* Telegram */}
+                          <a
+                            href={`https://t.me/share/url?url=${encodeURIComponent(
+                              res.file
+                            )}&text=${encodeURIComponent(msg)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition flex items-center justify-center"
+                          >
+                            <FaTelegramPlane />
+                          </a>
 
-                    <button
-                      onClick={() => handleCopyLink(res.file)}
-                      className="bg-gray-300 text-gray-800 p-3 rounded-full hover:bg-gray-400 transition flex items-center justify-center"
-                    >
-                      <FaLink />
-                    </button>
+                          {/* Email */}
+                          <a
+                            href={`mailto:?subject=Check this resource&body=${encodeURIComponent(
+                              msg + " " + res.file
+                            )}`}
+                            className="bg-purple-500 text-white p-3 rounded-full hover:bg-purple-600 transition flex items-center justify-center"
+                          >
+                            <FaEnvelope />
+                          </a>
+
+                          {/* Copy Link */}
+                          <button
+                            onClick={() => handleCopyLink(res.file, msg)}
+                            className="bg-gray-300 text-gray-800 p-3 rounded-full hover:bg-gray-400 transition flex items-center justify-center"
+                          >
+                            <FaLink />
+                          </button>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
