@@ -4,6 +4,7 @@ import axios from "axios";
 
 const Upload = ({ user }) => {
   const [file, setFile] = useState(null);
+  const [fileError, setFileError] = useState(""); // error for file size
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [url, setUrl] = useState("");
@@ -101,12 +102,7 @@ const Upload = ({ user }) => {
 
           {/* Year, Semester & Branch */}
           <div className="flex gap-4 w-full">
-            <select
-              name="year"
-              value={metadata.year}
-              onChange={handleChange}
-              className={inputClass}
-            >
+            <select name="year" value={metadata.year} onChange={handleChange} className={inputClass}>
               <option value="">Select Year</option>
               <option value="P1">P1</option>
               <option value="P2">P2</option>
@@ -116,23 +112,13 @@ const Upload = ({ user }) => {
               <option value="E4">E4</option>
             </select>
 
-            <select
-              name="sem"
-              value={metadata.sem}
-              onChange={handleChange}
-              className={inputClass}
-            >
+            <select name="sem" value={metadata.sem} onChange={handleChange} className={inputClass}>
               <option value="">Select Sem</option>
               <option value="Sem-1">Sem-1</option>
               <option value="Sem-2">Sem-2</option>
             </select>
 
-            <select
-              name="branch"
-              value={metadata.branch}
-              onChange={handleChange}
-              className={inputClass}
-            >
+            <select name="branch" value={metadata.branch} onChange={handleChange} className={inputClass}>
               <option value="">Select Branch</option>
               <option value="CSE">CSE</option>
               <option value="ECE">ECE</option>
@@ -174,9 +160,7 @@ const Upload = ({ user }) => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               className={`border-2 border-dashed rounded-xl px-6 py-4 w-full text-center font-medium cursor-pointer transition-all duration-300 ${
-                file
-                  ? "border-cyan-400 bg-white/20 text-gray-700"
-                  : "border-red-400 bg-white/10 text-red-400"
+                file ? "border-cyan-400 bg-white/20 text-gray-700" : "border-red-400 bg-white/10 text-red-400"
               }`}
             >
               {file ? file.name : "No PDF chosen"}
@@ -185,19 +169,31 @@ const Upload = ({ user }) => {
               type="file"
               accept=".pdf"
               className="hidden"
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={(e) => {
+                const selectedFile = e.target.files[0];
+                if (selectedFile) {
+                  if (selectedFile.size >= 10 * 1024 * 1024) {
+                    setFileError("⚠️ File size exceeds 10 MB. Please upload a smaller PDF!");
+                    e.target.value = "";
+                    setFile(null);
+                    return;
+                  }
+                  setFileError(""); // clear previous error
+                  setFile(selectedFile);
+                }
+              }}
             />
           </label>
+          {/* Show file error below input */}
+          {fileError && <p className="text-red-500 text-sm mt-1">{fileError}</p>}
 
           {/* Progress Bar */}
           {uploading && (
             <div className="w-full bg-gray-300 rounded-full h-3">
-              <div
-                className="bg-cyan-500 h-3 rounded-full"
-                style={{ width: `${progress}%` }}
-              />
+              <div className="bg-cyan-500 h-3 rounded-full" style={{ width: `${progress}%` }} />
             </div>
           )}
+
           {url && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -205,10 +201,14 @@ const Upload = ({ user }) => {
               transition={{ duration: 0.5 }}
               className="mt-4 bg-white/30 px-4 py-2 rounded-xl shadow-md text-cyan-500 text-center break-all backdrop-blur-sm border border-white/20"
             >
-              <b>Hurrah!! PDF Uploaded Successfully and got +10 points!</b><br />
-              <b>Your Current Points: <span className="text-orange-500">{user?.points + 10}</span></b>
+              <b>Hurrah!! PDF Uploaded Successfully and got +10 points!</b>
+              <br />
+              <b>
+                Your Current Points: <span className="text-orange-500">{user?.points + 10}</span>
+              </b>
             </motion.div>
           )}
+
           {/* Upload Button */}
           {!uploaded ? (
             <motion.button
@@ -221,11 +221,7 @@ const Upload = ({ user }) => {
               disabled={uploading}
               whileHover={{ scale: uploading ? 1 : 1.05 }}
             >
-              {uploading
-                ? "Uploading..."
-                : uploaded
-                ? "✅ Uploaded Successfully!"
-                : "Upload PDF"}
+              {uploading ? "Uploading..." : uploaded ? "✅ Uploaded Successfully!" : "Upload PDF"}
             </motion.button>
           ) : (
             <motion.button
@@ -236,7 +232,7 @@ const Upload = ({ user }) => {
               Click to Upload Another PDF
             </motion.button>
           )}
-          
+
           {/* PDF Preview */}
           {url && (
             <motion.div
@@ -245,9 +241,7 @@ const Upload = ({ user }) => {
               transition={{ duration: 0.5 }}
               className="mt-4 w-full"
             >
-              <h3 className="text-lg font-semibold mb-2 text-cyan-500">
-                Preview PDF:
-              </h3>
+              <h3 className="text-lg font-semibold mb-2 text-cyan-500">Preview PDF:</h3>
               <iframe
                 src={url}
                 className="w-full h-64 border border-gray-300 rounded-xl"

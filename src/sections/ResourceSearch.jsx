@@ -5,12 +5,14 @@ import PDFViewer from "./PDFViewer";
 
 const years = ["P1", "P2", "E1", "E2", "E3", "E4"];
 const semesters = ["Sem-1", "Sem-2"];
+const branches = ["CSE", "ECE", "EEE", "MECH", "CIVIL", "CHEM", "MME"];
 
 const ResourceSearch = () => {
   const [resources, setResources] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSem, setSelectedSem] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState(""); // added branch filter
   const [viewPdf, setViewPdf] = useState(null);
 
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
@@ -36,7 +38,8 @@ const ResourceSearch = () => {
         res.uploadedBy?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         res.collegeId?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedYear ? res.year === selectedYear : true) &&
-      (selectedSem ? res.sem === selectedSem : true)
+      (selectedSem ? res.sem === selectedSem : true) &&
+      (selectedBranch ? res.branch === selectedBranch : true) // branch filter
   );
 
   return (
@@ -78,6 +81,18 @@ const ResourceSearch = () => {
             </option>
           ))}
         </select>
+        <select
+          value={selectedBranch}
+          onChange={(e) => setSelectedBranch(e.target.value)}
+          className="p-3 rounded-full border border-white/50 bg-white/20 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-400"
+        >
+          <option value="">Branch</option>
+          {branches.map((branch) => (
+            <option key={branch} value={branch}>
+              {branch}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Resource Cards */}
@@ -90,40 +105,25 @@ const ResourceSearch = () => {
             >
               <div className="flex items-center gap-3 mb-2">
                 <FaBook className="text-cyan-400 text-2xl" />
-                <h3 className="font-semibold text-lg text-gray-900">
-                  {res.title}
-                </h3>
+                <h3 className="font-semibold text-lg text-gray-900">{res.title}</h3>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                Uploaded by{" "}
-                <span className="font-medium">{res.uploadedBy}</span>
+                Uploaded by <span className="font-medium">{res.uploadedBy}</span>
               </p>
               <p className="text-sm text-gray-700 mb-2">
-                ID:{" "}
-                <span className="font-medium">
-                  {res._collegeId || res.collegeId}
-                </span>
+                ID: <span className="font-medium">{res._collegeId || res.collegeId}</span>
               </p>
               <p className="text-sm text-gray-700 mb-4">
-                Unit:{" "}
-                <span className="font-medium">
-                  {res._unitNumber || res.unitNumber}
-                </span>
+                Unit: <span className="font-medium">{res._unitNumber || res.unitNumber}</span>
               </p>
               <div className="flex gap-2 flex-wrap mb-5">
-                <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full">
-                  {res.subject}
-                </span>
-                <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full">
-                  Year {res.year}
-                </span>
-                <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full">
-                  {res.sem}
-                </span>
+                <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full">{res.subject}</span>
+                <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full">Year {res.year}</span>
+                <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full">{res.sem}</span>
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setViewPdf(res.file)} 
+                  onClick={() => setViewPdf(res.file)}
                   className="flex-1 flex items-center justify-center gap-2 bg-cyan-500 text-white py-2 rounded-2xl hover:bg-cyan-600 hover:scale-105 transition"
                 >
                   <FaEye /> View PDF
@@ -133,9 +133,7 @@ const ResourceSearch = () => {
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-600 font-medium mt-10">
-          😔 No resources found!
-        </p>
+        <p className="text-center text-gray-600 font-medium mt-10">😔 No resources found!</p>
       )}
 
       {/* Fullscreen PDF Viewer Overlay */}

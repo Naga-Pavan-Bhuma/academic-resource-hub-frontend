@@ -4,7 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 // ===== API BASE =====
-const API_BASE = import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api";
 
 // ===== API CALLS =====
 const loginUser = async (email, password) => {
@@ -12,19 +13,25 @@ const loginUser = async (email, password) => {
     const res = await axios.post(`${API_BASE}/auth/login`, { email, password });
     return res.data;
   } catch (err) {
-    if (err.response) throw new Error(err.response.data.message || "Backend error");
-    else if (err.request) throw new Error("Network error: cannot reach backend");
+    if (err.response)
+      throw new Error(err.response.data.message || "Backend error");
+    else if (err.request)
+      throw new Error("Network error: cannot reach backend");
     else throw new Error(err.message);
   }
 };
 
 const loginUserWithGoogle = async (jwt) => {
   try {
-    const res = await axios.post(`${API_BASE}/auth/google-login`, { token: jwt });
+    const res = await axios.post(`${API_BASE}/auth/google-login`, {
+      token: jwt,
+    });
     return res.data;
   } catch (err) {
-    if (err.response) throw new Error(err.response.data.message || "Backend error");
-    else if (err.request) throw new Error("Network error: cannot reach backend");
+    if (err.response)
+      throw new Error(err.response.data.message || "Backend error");
+    else if (err.request)
+      throw new Error("Network error: cannot reach backend");
     else throw new Error(err.message);
   }
 };
@@ -119,12 +126,16 @@ const Login = () => {
 
       {/* Card */}
       <div className="relative bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl p-8 w-full max-w-md border border-gray-200">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back 👋</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Welcome Back 👋
+        </h2>
 
         <form className="space-y-5" onSubmit={handleLogin}>
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">College Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              College Email
+            </label>
             <div className="flex items-center">
               <input
                 type="text"
@@ -162,7 +173,8 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-lg font-medium transform hover:scale-[1.02] transition-all duration-300 shadow-lg bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl"
+            className="w-full py-3 rounded-lg font-medium transform hover:scale-[1.02] transition-all duration-300 shadow-lg 
+             bg-cyan-500 text-white hover:bg-cyan-400 hover:shadow-xl"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
@@ -181,7 +193,10 @@ const Login = () => {
         {/* Switch to Signup */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium transition">
+          <Link
+            to="/signup"
+            className="text-blue-600 hover:text-blue-800 font-medium transition"
+          >
             Sign up
           </Link>
         </p>

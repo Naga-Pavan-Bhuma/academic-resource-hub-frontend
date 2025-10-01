@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 // ===== API BASE =====
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+const API_BASE = "http://localhost:5000/api";
 
 const signupUser = async (userData) => {
   try {
     const res = await axios.post(`${API_BASE}/auth/signup`, userData);
     return res.data;
   } catch (err) {
-    if (err.response) throw new Error(err.response.data.message || "Backend error");
-    else if (err.request) throw new Error("Network error: cannot reach backend");
+    if (err.response)
+      throw new Error(err.response.data.message || "Backend error");
+    else if (err.request)
+      throw new Error("Network error: cannot reach backend");
     else throw new Error(err.message);
   }
 };
@@ -28,10 +31,26 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+  // OTP state
+  const [otpModal, setOtpModal] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [isVerified, setIsVerified] = useState(false);
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) return alert("Passwords do not match");
+    if (password !== confirmPassword) {
+      setMessage({ text: "Passwords do not match", type: "error" });
+      return;
+    }
+    if (!isVerified) {
+      setMessage({
+        text: "Please verify your email before signing up",
+        type: "error",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await signupUser({
@@ -43,17 +62,99 @@ const Signup = () => {
         branch,
         password,
       });
+
       if (data.token) {
         localStorage.setItem("token", data.token);
-        alert("Signup successful 🎉");
+        setMessage({ text: "Signup successful 🎉", type: "success" });
         window.location.href = "/student";
       } else {
-        alert(data.message || "Signup failed");
+        setMessage({ text: data.message || "Signup failed", type: "error" });
       }
     } catch (err) {
-      alert("⚠️ " + err.message);
+      // If user already exists
+      const errorMsg = err.message || "Signup failed";
+      setMessage({ text: errorMsg, type: "error" });
+
+      if (errorMsg.toLowerCase().includes("already exists")) {
+        // Enable email field again
+        setIsVerified(false);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle OTP input change
+  const handleOtpChange = (val, idx) => {
+    if (/^[0-9]?$/.test(val)) {
+      const newOtp = [...otp];
+      newOtp[idx] = val;
+      setOtp(newOtp);
+      // auto focus next box
+      if (val && idx < 5) {
+        document.getElementById(`otp-${idx + 1}`).focus();
+      }
+    }
+  };
+
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const [otpLoading, setOtpLoading] = useState(false);
+
+  const sendOtp = async () => {
+    setOtpLoading(true);
+    try {
+      await axios.post(`${API_BASE}/auth/send-otp`, {
+        email: email + "@rguktrkv.ac.in",
+      });
+      setOtpModal(true);
+      setResendTimer(60);
+      setMessage({ text: "OTP sent successfully!", type: "success" });
+    } catch (err) {
+      setMessage({
+        text: err.response?.data?.message || "Error sending OTP",
+        type: "error",
+      });
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    const enteredOtp = otp.join("");
+    try {
+      const res = await axios.post(`${API_BASE}/auth/verify-otp`, {
+        email: email + "@rguktrkv.ac.in",
+        otp: enteredOtp,
+      });
+
+      // Backend returns { message: "OTP verified successfully" }
+      if (res.data.message === "OTP verified successfully") {
+        setIsVerified(true);
+        setOtpModal(false);
+      } else {
+        setMessage({
+          text: "⚠️ " + (res.data.message || "OTP verification failed"),
+          type: "error",
+        });
+      }
+    } catch (err) {
+      setMessage({
+        text:
+          "⚠️ " + (err.response?.data?.message || "OTP verification failed"),
+        type: "error",
+      });
     }
   };
 
@@ -66,8 +167,22 @@ const Signup = () => {
 
       {/* Card */}
       <div className="relative bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl p-8 w-full max-w-xl border border-gray-200 max-h-[calc(100vh-4rem)] overflow-y-auto">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Create Account</h2>
-
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Create Account
+        </h2>
+        {message.text && (
+          <div
+            className={`mx-auto mb-4 px-4 py-2 rounded-lg text-center w-full max-w-md transition-all duration-300 ${
+              message.type === "success"
+                ? "bg-green-100 text-green-800 border border-green-300"
+                : message.type === "error"
+                ? "bg-red-100 text-red-800 border border-red-300"
+                : "bg-blue-100 text-blue-800 border border-blue-300"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
         <form className="space-y-5" onSubmit={handleSignup}>
           {/* Name + College ID */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -129,9 +244,11 @@ const Signup = () => {
             </select>
           </div>
 
-          {/* Email */}
+          {/* Email + Verify OTP */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">College Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              College Email
+            </label>
             <div className="flex items-center">
               <input
                 type="text"
@@ -140,11 +257,31 @@ const Signup = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 px-4 py-3 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
                 required
+                disabled={isVerified} // disable input if already verified
               />
-              <span className="px-3 py-3 border-t border-b border-r border-gray-300 bg-gray-100 rounded-r-lg text-gray-700 select-none">
+              <span className="px-3 py-3 border-t border-b border-r border-gray-300 bg-gray-100 text-gray-700 select-none">
                 @rguktrkv.ac.in
               </span>
+              {!isVerified && (
+                <button
+                  type="button"
+                  onClick={sendOtp}
+                  disabled={otpLoading} // disable while sending
+                  className={`ml-2 px-3 py-2 rounded-lg text-white text-sm transition-colors ${
+                    otpLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
+                >
+                  {otpLoading ? "Sending..." : "Send OTP"}
+                </button>
+              )}
             </div>
+            {isVerified && (
+              <p className="text-green-600 text-sm mt-2 font-semibold">
+                ✅ Mail verified successfully
+              </p>
+            )}
           </div>
 
           {/* Password + Confirm */}
@@ -162,7 +299,11 @@ const Signup = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? "🙈" : "👁️"}
+                {showPassword ? (
+                  <EyeSlashIcon className="w-5 h-5" />
+                ) : (
+                  <EyeIcon className="w-5 h-5" />
+                )}
               </span>
             </div>
             <div className="relative">
@@ -178,7 +319,11 @@ const Signup = () => {
                 onClick={() => setShowConfirm(!showConfirm)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
               >
-                {showConfirm ? "🙈" : "👁️"}
+                {showConfirm ? (
+                  <EyeSlashIcon className="w-5 h-5" />
+                ) : (
+                  <EyeIcon className="w-5 h-5" />
+                )}
               </span>
             </div>
           </div>
@@ -187,13 +332,15 @@ const Signup = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-lg font-medium transform hover:scale-[1.02] transition-all duration-300 shadow-lg bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl"
+            className="w-full py-3 rounded-lg font-medium transform hover:scale-[1.02] transition-all duration-300 shadow-lg 
+             bg-gradient-to-r from-cyan-300 to-cyan-500 text-white hover:shadow-xl"
           >
             {loading ? "Signing up..." : "Sign Up"}
           </button>
+          <hr className="border-gray-300" />
 
           {/* Already have account */}
-          <p className="text-center text-sm text-gray-600 mt-4">
+          <p className="text-center text-sm text-gray-600 mt-2">
             Already have an account?{" "}
             <Link to="/login" className="text-blue-600 hover:underline">
               Login
@@ -201,6 +348,103 @@ const Signup = () => {
           </p>
         </form>
       </div>
+
+      {/* OTP Modal */}
+      {otpModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white/40 z-50 backdrop-blur-md">
+          <div className="bg-white/70 backdrop-blur-lg border border-white/50 rounded-3xl shadow-2xl w-108 p-6 relative animate-fadeIn">
+            {/* Title */}
+            <h3 className="text-xl font-bold text-center text-gray-800 mb-2 tracking-wide">
+              🔒 Verify Your Email
+            </h3>
+            <p className="text-center text-sm text-gray-700 mb-4">
+              Enter the OTP sent to your college email.
+              <br />
+              OTP expires in 5 minutes. Each OTP is single-use.
+            </p>
+
+            <form
+              onSubmit={handleOtpSubmit}
+              className="flex flex-col items-center space-y-4"
+            >
+              {/* OTP Inputs */}
+              <div className="flex justify-center gap-2 mb-2">
+                {otp.map((val, idx) => (
+                  <input
+                    key={idx}
+                    id={`otp-${idx}`}
+                    type="text"
+                    maxLength="1"
+                    value={val}
+                    onChange={(e) => handleOtpChange(e.target.value, idx)}
+                    className={`w-14 h-14 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 animate-neon`}
+                    placeholder="•"
+                  />
+                ))}
+              </div>
+
+              {/* Resend Button with Timer */}
+              <button
+                type="button"
+                onClick={sendOtp}
+                disabled={resendTimer > 0}
+                className={`text-sm underline mb-2 ${
+                  resendTimer > 0
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-cyan-500 hover:text-cyan-400"
+                }`}
+              >
+                {resendTimer > 0
+                  ? `Resend OTP in ${resendTimer}s`
+                  : "Resend OTP"}
+              </button>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full py-2 mt-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-400 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-300"
+              >
+                Verify OTP
+              </button>
+
+              {/* General Info */}
+              <p className="text-xs text-gray-600 text-center mt-2">
+                Make sure to enter the OTP correctly to complete verification.
+              </p>
+            </form>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setOtpModal(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-lg font-bold"
+            >
+              ✕
+            </button>
+
+            {/* Animations */}
+            <style>
+              {`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+          }
+          .animate-fadeIn {
+            animation: fadeIn 0.25s ease-out;
+          }
+
+          @keyframes neonPulse {
+            0% { box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff; }
+            50% { box-shadow: 0 0 8px #00ffff, 0 0 16px #00ffff; }
+            100% { box-shadow: 0 0 4px #00ffff, 0 0 8px #00ffff; }
+          }
+          .animate-neon:focus {
+            animation: neonPulse 1s infinite;
+          }
+        `}
+            </style>
+          </div>
+        </div>
+      )}
 
       {/* Blob Animations */}
       <style>{`
