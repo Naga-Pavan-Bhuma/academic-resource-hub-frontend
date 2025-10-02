@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Filters from "./Filters";
 import ResourceCard from "./ResourceCard";
-import PDFViewer from "./PDFViewer";
+import PDFViewerWrapper from "./PDFViewerWrapper"; // Portal wrapper
 
 const ResourceSearch = () => {
   const [resources, setResources] = useState([]);
@@ -71,16 +71,16 @@ const ResourceSearch = () => {
           <p className="text-center text-gray-600 font-medium mt-10">😔 No resources found!</p>
         )}
 
-        {viewPdf && <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />}
+        {/* Portal-based PDFViewer */}
+        {viewPdf && <PDFViewerWrapper file={viewPdf} onClose={() => setViewPdf(null)} />}
       </section>
 
       {/* Bottom toast */}
       {copiedMessage && (
-  <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-md text-cyan-500 px-4 py-2 rounded-xl shadow-lg border border-white/30 z-[9999]">
-    {copiedMessage}
-  </div>
-)}
-
+        <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-md text-cyan-500 px-4 py-2 rounded-xl shadow-lg border border-white/30 z-[9999]">
+          {copiedMessage}
+        </div>
+      )}
     </>
   );
 };

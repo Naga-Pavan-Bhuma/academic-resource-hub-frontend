@@ -35,6 +35,12 @@ const PDFViewer = ({ file, onClose }) => {
     const loadPDF = async () => {
       setLoading(true);
       setLoadingPercent(0);
+
+      // Ensure container starts at top
+      if (containerRef.current) {
+        containerRef.current.scrollTop = 0;
+      }
+
       try {
         const response = await axios.get(file, {
           responseType: "blob",
@@ -104,6 +110,7 @@ const PDFViewer = ({ file, onClose }) => {
       });
 
       setCurrentPage(1);
+      if (containerRef.current) containerRef.current.scrollTop = 0; // ensure top
     };
     renderAllPages();
   }, [pdfDoc, scale, rotate, numPages]);
@@ -224,12 +231,14 @@ const PDFViewer = ({ file, onClose }) => {
         onScroll={handleScroll}
         className="flex-1 w-full overflow-y-auto bg-gray-100 p-6 flex flex-col items-center relative"
       >
+        {/* Loader overlay at top */}
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 font-semibold">
-            <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent border-b-transparent rounded-full animate-spin mb-2"></div>
-            Loading PDF... {loadingPercent}%
-          </div>
-        )}
+  <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center text-gray-700 font-semibold z-[9999]">
+    <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent border-b-transparent rounded-full animate-spin mb-2"></div>
+    Loading PDF... {loadingPercent}%
+  </div>
+)}
+
       </div>
     </div>
   );
