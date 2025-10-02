@@ -75,10 +75,11 @@ const StudentDashboard = () => {
           path="discussions"
           element={
             <PageWrapper>
-              <DiscussionBoard />
+              <DiscussionBoard user={user} />
             </PageWrapper>
           }
         />
+
         <Route
           path="upload"
           element={
