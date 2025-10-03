@@ -1,14 +1,44 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaBook, FaEye, FaShareAlt } from "react-icons/fa";
+import { FaBook, FaEye, FaShareAlt, FaStar, FaRegStar } from "react-icons/fa";
 import ShareModal from "./ShareModal";
+import axios from "axios";
 
-const ResourceCard = ({ resource, onViewPdf, setCopiedMessage }) => {
+const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
   const [shareResource, setShareResource] = useState(null);
+  const [bookmarked, setBookmarked] = useState(false);
   const shareBtnRef = useRef(null);
 
   const avgRating = resource.avgRating || 0;
   const ratingCount = resource.ratingCount || 0;
+  
+  // Check if resource is already bookmarked
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/bookmarks/${userId}`);
+        const isBookmarked = res.data.some(r => r._id === resource._id);
+        setBookmarked(isBookmarked);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchBookmarks();
+  }, [resource._id, userId]);
+
+  // Toggle bookmark
+  const toggleBookmark = async () => {
+    try {
+      if (bookmarked) {
+        await axios.delete(`http://localhost:5000/api/bookmarks/${resource._id}`, { data: { userId } });
+      } else {
+        await axios.post(`http://localhost:5000/api/bookmarks/${resource._id}`, { userId });
+      }
+      setBookmarked(!bookmarked);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <motion.div
@@ -18,12 +48,20 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage }) => {
       transition={{ duration: 0.3 }}
       className="relative bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:shadow-2xl transition"
     >
+      {/* Bookmark button top-right */}
+      <button
+        onClick={toggleBookmark}
+        className="absolute top-4 right-4 text-yellow-400 text-xl hover:scale-110 transition-transform"
+        title={bookmarked ? "Remove Bookmark" : "Add Bookmark"}
+      >
+        {bookmarked ? <FaStar /> : <FaRegStar />}
+        
+      </button>
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
         <FaBook className="text-cyan-400 text-2xl" />
-        <h3 className="font-semibold text-lg text-gray-900">
-          {resource.title}
-        </h3>
+        <h3 className="font-semibold text-lg text-gray-900">{resource.title}</h3>
       </div>
 
       {/* Uploaded & ID */}
@@ -31,19 +69,13 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage }) => {
         Uploaded by <span className="font-medium">{resource.uploadedBy}</span>
       </p>
       <p className="text-sm text-gray-700 mb-2">
-        ID:{" "}
-        <span className="font-medium">
-          {resource._collegeId || resource.collegeId}
-        </span>
+        ID: <span className="font-medium">{resource._collegeId || resource.collegeId}</span>
       </p>
 
       {/* Unit + Rating inline */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-700">
-          Unit:{" "}
-          <span className="font-medium">
-            {resource._unitNumber || resource.unitNumber}
-          </span>
+          Unit: <span className="font-medium">{resource._unitNumber || resource.unitNumber}</span>
         </p>
         <div className="flex items-center gap-2">
           <span
@@ -56,7 +88,7 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage }) => {
         </div>
       </div>
 
-      {/* Tags with hover effects */}
+      {/* Tags */}
       <div className="flex gap-2 flex-wrap mb-5">
         <span className="bg-cyan-100/40 text-cyan-800 text-xs px-3 py-1 rounded-full cursor-pointer hover:scale-105 transition-transform duration-200">
           {resource.subject}
@@ -88,7 +120,6 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage }) => {
           <FaShareAlt /> Share
         </motion.button>
 
-        {/* Share Modal anchored relative */}
         {shareResource && (
           <ShareModal
             resource={resource}

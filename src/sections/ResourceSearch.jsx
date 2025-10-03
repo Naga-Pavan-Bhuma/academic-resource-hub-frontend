@@ -11,10 +11,38 @@ const ResourceSearch = () => {
   const [selectedSem, setSelectedSem] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
   const [viewPdf, setViewPdf] = useState(null);
-  const [copiedMessage, setCopiedMessage] = useState(""); // ← for toast
-
+  const [copiedMessage, setCopiedMessage] = useState("");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showBookmarks, setShowBookmarks] = useState(false); // ← new state
+  const [bookmarkedResources, setBookmarkedResources] = useState([]);
+  const userId = user?._id;
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
+  // Fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No token found");
+
+        const res = await axios.get(`${API_BASE}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(res.data.user);
+      } catch (err) {
+        console.error("Fetch user failed:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // Fetch all resources
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -27,7 +55,23 @@ const ResourceSearch = () => {
     fetchResources();
   }, []);
 
-  const filteredResources = resources.filter(
+  // Fetch bookmarked resources for the user
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchBookmarks = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/bookmarks/${userId}`);
+        setBookmarkedResources(res.data);
+      } catch (err) {
+        console.error("Error fetching bookmarks:", err);
+      }
+    };
+    fetchBookmarks();
+  }, [userId]);
+
+  // Filter resources based on search, filters, and bookmarks toggle
+  const filteredResources = (showBookmarks ? bookmarkedResources : resources).filter(
     (res) =>
       (res.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         res.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,6 +100,20 @@ const ResourceSearch = () => {
           setSelectedBranch={setSelectedBranch}
         />
 
+        {/* Toggle Bookmarks Button */}
+        <div className="text-center mb-6">
+          <button
+            onClick={() => setShowBookmarks(!showBookmarks)}
+            className={`px-5 py-2 rounded-2xl font-medium transition ${
+              showBookmarks
+                ? "bg-cyan-500 text-white hover:bg-cyan-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            }`}
+          >
+            {showBookmarks ? "Showing Bookmarks" : "Show Bookmarked Items"}
+          </button>
+        </div>
+
         {filteredResources.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResources.map((res) => (
@@ -63,7 +121,8 @@ const ResourceSearch = () => {
                 key={res._id || res.id}
                 resource={res}
                 onViewPdf={setViewPdf}
-                setCopiedMessage={setCopiedMessage} // ← pass setter
+                setCopiedMessage={setCopiedMessage}
+                userId={userId}
               />
             ))}
           </div>
@@ -71,11 +130,9 @@ const ResourceSearch = () => {
           <p className="text-center text-gray-600 font-medium mt-10">😔 No resources found!</p>
         )}
 
-        {/* Portal-based PDFViewer */}
         {viewPdf && <PDFViewerWrapper file={viewPdf} onClose={() => setViewPdf(null)} />}
       </section>
 
-      {/* Bottom toast */}
       {copiedMessage && (
         <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-md text-cyan-500 px-4 py-2 rounded-xl shadow-lg border border-white/30 z-[9999]">
           {copiedMessage}
