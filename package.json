@@ -21,6 +21,7 @@
     "@tsparticles/shape-polygon": "^3.9.1",
     "@tsparticles/shape-star": "^3.9.1",
     "axios": "^1.12.2",
+    "emoji-picker-react": "^4.13.3",
     "firebase": "^12.3.0",
     "framer-motion": "^12.23.16",
     "lucide-react": "^0.544.0",
