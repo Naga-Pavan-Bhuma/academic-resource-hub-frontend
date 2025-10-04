@@ -8,7 +8,7 @@ const Leaderboard = ({ user }) => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/api/leaderboard`);
+        const res = await axios.get(`${API_BASE}/leaderboard`);
         setLeaderboardData(res.data);
       } catch (error) {
         console.error("Error fetching leaderboard:", error);
