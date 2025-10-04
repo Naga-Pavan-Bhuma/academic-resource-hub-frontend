@@ -3,11 +3,12 @@ import axios from "axios";
 
 const Leaderboard = ({ user }) => {
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/leaderboard");
+        const res = await axios.get(`${API_BASE}/api/leaderboard`);
         setLeaderboardData(res.data);
       } catch (error) {
         console.error("Error fetching leaderboard:", error);
