@@ -4,7 +4,7 @@ import PDFToolbar from "./PDFToolbar";
 import PDFContainer from "./PDFContainer";
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/legacy/build/pdf.worker.min.js",

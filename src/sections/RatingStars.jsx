@@ -8,13 +8,14 @@ const RatingStars = ({ resourceId, userId }) => {
   const [selected, setSelected] = useState(0);   // clicked rating
   const [submitted, setSubmitted] = useState(false);
   const [showSubmit, setShowSubmit] = useState(false);
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   // Fetch previous rating from backend
   useEffect(() => {
     if (!resourceId || !userId) return;
 
     axios
-      .get(`http://localhost:5000/api/resources/${resourceId}/rating?userId=${userId}`)
+      .get(`${API_BASE}/resources/${resourceId}/rating?userId=${userId}`)
       .then((res) => {
         const userRating = res.data.average || 0;
         setRating(userRating);
@@ -32,7 +33,7 @@ const RatingStars = ({ resourceId, userId }) => {
     if (!selected) return alert("Please select a rating first");
 
     try {
-      await axios.post(`http://localhost:5000/api/resources/${resourceId}/rate`, {
+      await axios.post(`${API_BASE}/resources/${resourceId}/rate`, {
         userId,
         value: selected,
       });

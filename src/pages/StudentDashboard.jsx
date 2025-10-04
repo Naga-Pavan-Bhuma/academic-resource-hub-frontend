@@ -8,9 +8,8 @@ import Leaderboard from "../sections/Leaderboard";
 import PageWrapper from "../sections/PageWrapper";
 import Upload from "../sections/Upload";
 import PDFViewer from "../sections/PDFViewer";
-
 const API_BASE =
-  import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api";
+  import.meta.env.VITE_API_BASE;
 
 const StudentDashboard = () => {
   const [user, setUser] = useState(null);
@@ -47,11 +46,7 @@ const StudentDashboard = () => {
     );
 
   if (!user)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500 text-lg">
-        ⚠️ User not found. Please login again.
-      </div>
-    );
+    return <Navigate to="/login" replace />;
 
   if (viewPdf) {
     return <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />;

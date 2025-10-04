@@ -1,6 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaBook, FaEye, FaShareAlt, FaStar, FaRegStar } from "react-icons/fa";
+import {
+  FaBook,
+  FaEye,
+  FaShareAlt,
+  FaBookmark,
+  FaRegBookmark,
+} from "react-icons/fa";
 import ShareModal from "./ShareModal";
 import axios from "axios";
 
@@ -8,16 +14,16 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
   const [shareResource, setShareResource] = useState(null);
   const [bookmarked, setBookmarked] = useState(false);
   const shareBtnRef = useRef(null);
-
+  const API_BASE = import.meta.env.VITE_API_BASE;
   const avgRating = resource.avgRating || 0;
   const ratingCount = resource.ratingCount || 0;
-  
-  // Check if resource is already bookmarked
+
+  // ✅ Check if resource is already bookmarked
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/bookmarks/${userId}`);
-        const isBookmarked = res.data.some(r => r._id === resource._id);
+        const res = await axios.get(`${API_BASE}/bookmarks/${userId}`);
+        const isBookmarked = res.data.some((r) => r._id === resource._id);
         setBookmarked(isBookmarked);
       } catch (err) {
         console.error(err);
@@ -26,15 +32,23 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
     fetchBookmarks();
   }, [resource._id, userId]);
 
-  // Toggle bookmark
+  // ✅ Toggle bookmark + show toast
   const toggleBookmark = async () => {
     try {
       if (bookmarked) {
-        await axios.delete(`http://localhost:5000/api/bookmarks/${resource._id}`, { data: { userId } });
+        await axios.delete(`${API_BASE}/bookmarks/${resource._id}`, {
+          data: { userId },
+        });
+        setCopiedMessage("Bookmark removed ❌");
       } else {
-        await axios.post(`http://localhost:5000/api/bookmarks/${resource._id}`, { userId });
+        await axios.post(`${API_BASE}/bookmarks/${resource._id}`, { userId });
+        setCopiedMessage("Bookmark added ✅");
       }
+
       setBookmarked(!bookmarked);
+
+      // Auto-hide toast after 2s
+      setTimeout(() => setCopiedMessage(""), 2000);
     } catch (err) {
       console.error(err);
     }
@@ -48,20 +62,23 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
       transition={{ duration: 0.3 }}
       className="relative bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:shadow-2xl transition"
     >
-      {/* Bookmark button top-right */}
+      {/* ✅ Bookmark Button */}
       <button
         onClick={toggleBookmark}
-        className="absolute top-4 right-4 text-yellow-400 text-xl hover:scale-110 transition-transform"
+        className={`absolute top-4 right-4 text-xl hover:scale-110 transition-transform ${
+          bookmarked ? "text-cyan-500" : "text-gray-400 hover:text-cyan-400"
+        }`}
         title={bookmarked ? "Remove Bookmark" : "Add Bookmark"}
       >
-        {bookmarked ? <FaStar /> : <FaRegStar />}
-        
+        {bookmarked ? <FaBookmark /> : <FaRegBookmark />}
       </button>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
         <FaBook className="text-cyan-400 text-2xl" />
-        <h3 className="font-semibold text-lg text-gray-900">{resource.title}</h3>
+        <h3 className="font-semibold text-lg text-gray-900">
+          {resource.title}
+        </h3>
       </div>
 
       {/* Uploaded & ID */}
@@ -69,13 +86,19 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
         Uploaded by <span className="font-medium">{resource.uploadedBy}</span>
       </p>
       <p className="text-sm text-gray-700 mb-2">
-        ID: <span className="font-medium">{resource._collegeId || resource.collegeId}</span>
+        ID:{" "}
+        <span className="font-medium">
+          {resource._collegeId || resource.collegeId}
+        </span>
       </p>
 
       {/* Unit + Rating inline */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-gray-700">
-          Unit: <span className="font-medium">{resource._unitNumber || resource.unitNumber}</span>
+          Unit:{" "}
+          <span className="font-medium">
+            {resource._unitNumber || resource.unitNumber}
+          </span>
         </p>
         <div className="flex items-center gap-2">
           <span

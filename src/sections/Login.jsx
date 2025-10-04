@@ -5,7 +5,7 @@ import axios from "axios";
 
 // ===== API BASE =====
 const API_BASE =
-  import.meta.env.VITE_API_BASE || "http://10.196.162.7:5000/api";
+  import.meta.env.VITE_API_BASE;
 
 // ===== API CALLS =====
 const loginUser = async (email, password) => {

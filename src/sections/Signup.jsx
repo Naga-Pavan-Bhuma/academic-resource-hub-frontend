@@ -5,7 +5,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 
 // ===== API BASE =====
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 const signupUser = async (userData) => {
   try {

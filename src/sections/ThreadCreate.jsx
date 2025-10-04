@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function ThreadCreate({ threads, setThreads, setFilteredThreads, setSelectedThread, user, resourceId }) {
   const [title, setTitle] = useState("");

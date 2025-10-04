@@ -17,7 +17,7 @@ const ResourceSearch = () => {
   const [showBookmarks, setShowBookmarks] = useState(false); // ← new state
   const [bookmarkedResources, setBookmarkedResources] = useState([]);
   const userId = user?._id;
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+  const API_BASE = import.meta.env.VITE_API_BASE;
 
   // Fetch user
   useEffect(() => {
@@ -71,7 +71,9 @@ const ResourceSearch = () => {
   }, [userId]);
 
   // Filter resources based on search, filters, and bookmarks toggle
-  const filteredResources = (showBookmarks ? bookmarkedResources : resources).filter(
+  const filteredResources = (
+    showBookmarks ? bookmarkedResources : resources
+  ).filter(
     (res) =>
       (res.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         res.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -100,17 +102,17 @@ const ResourceSearch = () => {
           setSelectedBranch={setSelectedBranch}
         />
 
-        {/* Toggle Bookmarks Button */}
-        <div className="text-center mb-6">
+        {/* Bookmark Toggle Button (Top Right) */}
+        <div className="absolute top-6 right-6 z-50">
           <button
             onClick={() => setShowBookmarks(!showBookmarks)}
-            className={`px-5 py-2 rounded-2xl font-medium transition ${
+            className={`px-5 py-2 rounded-full font-medium shadow-md transition duration-300 ${
               showBookmarks
                 ? "bg-cyan-500 text-white hover:bg-cyan-600"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                : "bg-white/60 text-gray-800 hover:bg-cyan-100 border border-cyan-300/40 backdrop-blur-md"
             }`}
           >
-            {showBookmarks ? "Showing Bookmarks" : "Show Bookmarked Items"}
+            {showBookmarks ? "★ Bookmarked" : "☆ Bookmarks"}
           </button>
         </div>
 
@@ -127,10 +129,14 @@ const ResourceSearch = () => {
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-600 font-medium mt-10">😔 No resources found!</p>
+          <p className="text-center text-gray-600 font-medium mt-10">
+            😔 No resources found!
+          </p>
         )}
 
-        {viewPdf && <PDFViewerWrapper file={viewPdf} onClose={() => setViewPdf(null)} />}
+        {viewPdf && (
+          <PDFViewerWrapper file={viewPdf} onClose={() => setViewPdf(null)} />
+        )}
       </section>
 
       {copiedMessage && (
