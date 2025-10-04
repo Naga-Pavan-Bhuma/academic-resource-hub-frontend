@@ -20,6 +20,8 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
 
   // ✅ Check if resource is already bookmarked
   useEffect(() => {
+    if (!userId || !resource?._id) return; // ✅ Skip until userId & resource exist
+
     const fetchBookmarks = async () => {
       try {
         const res = await axios.get(`${API_BASE}/bookmarks/${userId}`);
@@ -29,6 +31,7 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
         console.error(err);
       }
     };
+
     fetchBookmarks();
   }, [resource._id, userId]);
 

@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 // ===== API BASE =====
-const API_BASE =
-  import.meta.env.VITE_API_BASE;
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 // ===== API CALLS =====
 const loginUser = async (email, password) => {
@@ -165,7 +165,11 @@ const Login = () => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700"
             >
-              {showPassword ? "🙈" : "👁️"}
+              {showPassword ? (
+                <EyeSlashIcon className="w-5 h-5" />
+              ) : (
+                <EyeIcon className="w-5 h-5" />
+              )}
             </span>
           </div>
 
