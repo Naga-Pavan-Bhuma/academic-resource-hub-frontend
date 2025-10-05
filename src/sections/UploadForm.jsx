@@ -77,28 +77,47 @@ const UploadForm = ({
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Title */}
-      <input type="text" name="title" placeholder="Title" value={metadata.title} onChange={handleChange} className={`w-full ${inputClass}`} />
+      <input
+        type="text"
+        name="title"
+        placeholder="Title"
+        value={metadata.title}
+        onChange={handleChange}
+        className={`w-full ${inputClass}`}
+      />
 
       {/* Year, Semester & Branch */}
-      <div className="flex gap-4 w-full">
-        <select name="year" value={metadata.year} onChange={handleChange} className={inputClass}>
+      <div className="flex flex-col sm:flex-row gap-4 w-full">
+        <select name="year" value={metadata.year} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
           <option value="">Select Year</option>
           {["P1","P2","E1","E2","E3","E4"].map((y) => <option key={y} value={y}>{y}</option>)}
         </select>
-        <select name="sem" value={metadata.sem} onChange={handleChange} className={inputClass}>
+        <select name="sem" value={metadata.sem} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
           <option value="">Select Sem</option>
           {["Sem-1","Sem-2"].map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select name="branch" value={metadata.branch} onChange={handleChange} className={inputClass}>
+        <select name="branch" value={metadata.branch} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
           <option value="">Select Branch</option>
           {["CSE","ECE","EEE","MECH","CIVIL","CHEM","MME"].map((b) => <option key={b} value={b}>{b}</option>)}
         </select>
       </div>
 
       {/* Subject & Unit */}
-      <div className="flex gap-4 w-full">
-        <input type="text" name="subject" placeholder="Subject" value={metadata.subject} onChange={handleChange} className={`${inputClass} flex-1`} />
-        <select name="unitNumber" value={metadata.unitNumber} onChange={handleChange} className={`${inputClass} max-w-[120px]`}>
+      <div className="flex flex-col sm:flex-row gap-4 w-full">
+        <input
+          type="text"
+          name="subject"
+          placeholder="Subject"
+          value={metadata.subject}
+          onChange={handleChange}
+          className={`w-full sm:flex-1 ${inputClass}`}
+        />
+        <select
+          name="unitNumber"
+          value={metadata.unitNumber}
+          onChange={handleChange}
+          className={`w-full sm:max-w-[120px] ${inputClass}`}
+        >
           <option value="">Unit</option>
           {[1,2,3,4,5,6].map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
@@ -117,8 +136,10 @@ const UploadForm = ({
       {!uploaded ? (
         <motion.button
           onClick={handleUpload}
-          className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg ${
-            uploading ? "bg-gray-400 cursor-not-allowed" : "bg-cyan-500/80 hover:bg-cyan-400/80 hover:scale-105 transition-transform duration-300"
+          className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold text-white shadow-lg ${
+            uploading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-cyan-500/80 hover:bg-cyan-400/80 hover:scale-105 transition-transform duration-300"
           } backdrop-blur-sm`}
           disabled={uploading}
           whileHover={{ scale: uploading ? 1 : 1.05 }}
@@ -128,7 +149,7 @@ const UploadForm = ({
       ) : (
         <motion.button
           onClick={() => window.location.reload()}
-          className="px-8 py-3 rounded-xl font-bold text-white shadow-lg bg-green-500 hover:bg-green-400 hover:scale-105 transition-transform duration-300 backdrop-blur-sm"
+          className="w-full sm:w-auto px-8 py-3 rounded-xl font-bold text-white shadow-lg bg-green-500 hover:bg-green-400 hover:scale-105 transition-transform duration-300 backdrop-blur-sm"
           whileHover={{ scale: 1.05 }}
         >
           Click to Upload Another PDF

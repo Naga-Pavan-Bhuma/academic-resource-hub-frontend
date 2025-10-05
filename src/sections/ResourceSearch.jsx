@@ -87,7 +87,8 @@ const ResourceSearch = () => {
   return (
     <>
       <section className="p-6 min-h-screen bg-gradient-to-b from-white/30 to-white/20 backdrop-blur-lg relative">
-        <h2 className="text-3xl md:text-4xl font-bold text-cyan-500 mb-8 text-center">
+        {/* Centered Header */}
+        <h2 className="text-3xl md:text-4xl font-bold text-cyan-500 text-center mb-4">
           Discover Your Resources
         </h2>
 
@@ -101,9 +102,8 @@ const ResourceSearch = () => {
           selectedBranch={selectedBranch}
           setSelectedBranch={setSelectedBranch}
         />
-
-        {/* Bookmark Toggle Button (Top Right) */}
-        <div className="absolute top-6 right-6 z-50">
+{/* Bookmark button */}
+        <div className="flex justify-center md:justify-end mb-6">
           <button
             onClick={() => setShowBookmarks(!showBookmarks)}
             className={`px-5 py-2 rounded-full font-medium shadow-md transition duration-300 ${
@@ -115,7 +115,6 @@ const ResourceSearch = () => {
             {showBookmarks ? "★ Bookmarked" : "☆ Bookmarks"}
           </button>
         </div>
-
         {filteredResources.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResources.map((res) => (

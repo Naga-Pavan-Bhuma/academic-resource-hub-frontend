@@ -258,25 +258,31 @@ const Signup = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               College Email
             </label>
-            <div className="flex items-center">
-              <input
-                type="text"
-                placeholder="Enter Email Prefix"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 px-4 py-3 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-                required
-                disabled={isVerified}
-              />
-              <span className="px-3 py-3 border-t border-b border-r border-gray-300 bg-gray-100 text-gray-700 select-none">
-                @rguktrkv.ac.in
-              </span>
+
+            {/* Flex container: column on mobile, row on sm+ */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+              <div className="flex w-full">
+                <input
+                  type="text"
+                  placeholder="Enter Email Prefix"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 px-4 py-3 border rounded-l-lg sm:rounded-l-lg sm:rounded-r-none focus:ring-2 focus:ring-blue-500 focus:outline-none transition w-full"
+                  required
+                  disabled={isVerified}
+                />
+                <span className="px-3 py-3 border-t border-b border-r border-gray-300 bg-gray-100 text-gray-700 select-none sm:inline rounded-r-lg">
+                  @rguktrkv.ac.in
+                </span>
+              </div>
+
+              {/* Send OTP button */}
               {!isVerified && (
                 <button
                   type="button"
                   onClick={sendOtp}
-                  disabled={otpLoading}
-                  className={`ml-2 px-3 py-2 rounded-lg text-white text-sm transition-colors ${
+                  disabled={otpLoading || !email}
+                  className={`w-full sm:w-auto px-3 py-3 rounded-lg text-white whitespace-nowrap text-sm transition-colors ${
                     otpLoading
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-green-500 hover:bg-green-600"
@@ -286,6 +292,7 @@ const Signup = () => {
                 </button>
               )}
             </div>
+
             {isVerified && (
               <p className="text-green-600 text-sm mt-2 font-semibold">
                 ✅ Mail verified successfully
