@@ -137,19 +137,18 @@ const Login = () => {
               College Email
             </label>
             <div className="flex w-full max-w-md">
-  <input
-    type="text"
-    placeholder="Enter Email Prefix"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    className="flex-1 min-w-0 px-4 py-3 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-    required
-  />
-  <span className="px-3 py-3 border-t border-b border-r border-gray-300 bg-gray-100 rounded-r-lg text-gray-700 select-none">
-    @rguktrkv.ac.in
-  </span>
-</div>
-
+              <input
+                type="text"
+                placeholder="Enter Email Prefix"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 min-w-0 px-4 py-3 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+                required
+              />
+              <span className="px-3 py-3 border-t border-b border-r border-gray-300 bg-gray-100 rounded-r-lg text-gray-700 select-none">
+                @rguktrkv.ac.in
+              </span>
+            </div>
           </div>
 
           {/* Password */}

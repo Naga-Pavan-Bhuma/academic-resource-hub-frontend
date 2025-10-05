@@ -366,13 +366,14 @@ const Signup = () => {
       </div>
 
       {/* OTP Modal */}
+      {/* OTP Modal */}
       {otpModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-white/40 z-50 backdrop-blur-md">
-          <div className="bg-white/70 backdrop-blur-lg border border-white/50 rounded-3xl shadow-2xl w-108 p-6 relative animate-fadeIn">
-            <h3 className="text-xl font-bold text-center text-gray-800 mb-2 tracking-wide">
+        <div className="fixed inset-0 flex items-center justify-center bg-white/40 z-50 backdrop-blur-md p-4 sm:p-0">
+          <div className="bg-white/70 backdrop-blur-lg border border-white/50 rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8 relative animate-fadeIn">
+            <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-2 tracking-wide">
               🔒 Verify Your Email
             </h3>
-            <p className="text-center text-sm text-gray-700 mb-4">
+            <p className="text-center text-sm sm:text-base text-gray-700 mb-4">
               Enter the OTP sent to your college email.
               <br />
               OTP expires in 5 minutes. Each OTP is single-use.
@@ -391,7 +392,7 @@ const Signup = () => {
                     maxLength="1"
                     value={val}
                     onChange={(e) => handleOtpChange(e.target.value, idx)}
-                    className={`w-14 h-14 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 animate-neon`}
+                    className="w-10 sm:w-12 md:w-14 h-10 sm:h-12 md:h-14 text-center text-lg sm:text-xl font-semibold rounded-lg border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 animate-neon"
                     placeholder="•"
                   />
                 ))}
@@ -401,7 +402,7 @@ const Signup = () => {
                 type="button"
                 onClick={sendOtp}
                 disabled={resendTimer > 0}
-                className={`text-sm underline mb-2 ${
+                className={`text-sm sm:text-base underline mb-2 ${
                   resendTimer > 0
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-cyan-500 hover:text-cyan-400"
@@ -422,7 +423,7 @@ const Signup = () => {
 
             <button
               onClick={() => setOtpModal(false)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-lg font-bold"
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 text-lg sm:text-xl font-bold"
             >
               ✕
             </button>
