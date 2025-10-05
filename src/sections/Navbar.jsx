@@ -33,7 +33,7 @@ const Navbar = () => {
   className="relative overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-500 w-fit"
 >
   <img
-    src="/assets/Logo1.png" // 👈 your logo path (e.g., /academic-hub-logo.png)
+    src="/assets/Logo1.gif" // 👈 your logo path (e.g., /academic-hub-logo.png)
     alt="Academic Hub Logo"
     className="h-8 md:h-9 lg:h-10 object-contain"
     style={{ width: "auto" }}

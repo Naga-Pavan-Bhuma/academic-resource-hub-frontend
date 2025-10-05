@@ -24,7 +24,7 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
       <div className="relative max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
         {/* Logo */}
          <img
-  src="/assets/Logo1.png" // 👈 your logo path (like /academic-hub-logo.svg or .png)
+  src="/assets/Logo1.gif" // 👈 your logo path (like /academic-hub-logo.svg or .png)
   alt="Academic Hub Logo"
   onClick={() => navigate("/student/resources")}
   className="h-8 md:h-10 w-auto cursor-pointer transform hover:scale-105 transition-transform duration-300 object-contain"
