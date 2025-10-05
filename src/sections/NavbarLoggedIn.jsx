@@ -23,12 +23,13 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
     <header className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/20 border-b border-white/30 shadow-lg">
       <div className="relative max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
         {/* Logo */}
-         <h1
-          className="font-poppins text-xl md:text-2xl font-bold bg-clip-text cursor-pointer hover:scale-105 transition-transform duration-300"
-          onClick={() => navigate("/student/resources")}
-        >
-          Academic Hub
-        </h1>
+         <img
+  src="/assets/Logo1.png" // 👈 your logo path (like /academic-hub-logo.svg or .png)
+  alt="Academic Hub Logo"
+  onClick={() => navigate("/student/resources")}
+  className="h-8 md:h-10 w-auto cursor-pointer transform hover:scale-105 transition-transform duration-300 object-contain"
+/>
+
 
 
         {/* Desktop Menu */}

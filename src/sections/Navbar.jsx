@@ -20,20 +20,30 @@ const Navbar = () => {
       <div
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
         style={{
-          background: `linear-gradient(120deg, rgba(255,255,255,0.1) ${shine}%, rgba(255,255,255,0.25) ${shine + 15}%, rgba(255,255,255,0.1) ${shine + 30}%)`,
+          background: `linear-gradient(120deg, rgba(255,255,255,0.1) ${shine}%, rgba(255,255,255,0.25) ${
+            shine + 15
+          }%, rgba(255,255,255,0.1) ${shine + 30}%)`,
           transition: "background 0.015s linear",
         }}
       />
 
       <div className="relative max-w-7xl mx-auto flex justify-between items-center px-6 py-3 md:py-4">
         {/* Logo */}
-        <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 relative overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-500">
-          Academic Hub
-          <span
-            className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-white/60 via-white/20 to-white/0 transform skew-x-12 pointer-events-none"
-            style={{ left: `${shine}%`, transition: "left 0.015s linear" }}
-          />
-        </h1>
+       <div
+  className="relative overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-500 w-fit"
+>
+  <img
+    src="/assets/Logo1.png" // 👈 your logo path (e.g., /academic-hub-logo.png)
+    alt="Academic Hub Logo"
+    className="h-8 md:h-9 lg:h-10 object-contain"
+    style={{ width: "auto" }}
+  />
+  <span
+    className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-white/60 via-white/20 to-white/0 transform skew-x-12 pointer-events-none"
+    style={{ left: `${shine}%`, transition: "left 0.015s linear" }}
+  />
+</div>
+
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-8 items-center font-medium text-gray-900 text-sm">
