@@ -90,7 +90,7 @@ const UploadForm = ({
       <div className="flex flex-col sm:flex-row gap-4 w-full">
         <select name="year" value={metadata.year} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
           <option value="">Select Year</option>
-          {["P1","P2","E1","E2","E3","E4"].map((y) => <option key={y} value={y}>{y}</option>)}
+          {["Puc-1","Puc-2","Engg-1","Engg-2","Engg-3","Engg-4"].map((y) => <option key={y} value={y}>{y}</option>)}
         </select>
         <select name="sem" value={metadata.sem} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
           <option value="">Select Sem</option>

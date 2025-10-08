@@ -21,26 +21,43 @@ const ResourceSearch = () => {
 
   // Fetch user
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("No token found");
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
 
-        const res = await axios.get(`${API_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      const res = await axios.get(`${API_BASE}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        setUser(res.data.user);
-      } catch (err) {
-        console.error("Fetch user failed:", err);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const fetchedUser = res.data.user;
+      setUser(fetchedUser);
 
-    fetchUser();
-  }, []);
+      // 🟢 Set default branch & year from user profile
+      if (fetchedUser?.branch) setSelectedBranch(fetchedUser.branch);
+      if (fetchedUser?.year) setSelectedYear(fetchedUser.year);
+      console.log("Fetched user:", fetchedUser);
+
+    } catch (err) {
+      console.error("Fetch user failed:", err);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUser();
+}, []);
+
+const fetchBookmarks = async () => {
+  if (!userId) return;
+  try {
+    const res = await axios.get(`${API_BASE}/bookmarks/${userId}`);
+    setBookmarkedResources(res.data);
+  } catch (err) {
+    console.error("Error fetching bookmarks:", err);
+  }
+};
 
   // Fetch all resources
   useEffect(() => {
@@ -57,18 +74,9 @@ const ResourceSearch = () => {
 
   // Fetch bookmarked resources for the user
   useEffect(() => {
-    if (!userId) return;
+  fetchBookmarks();
+}, [userId]);
 
-    const fetchBookmarks = async () => {
-      try {
-        const res = await axios.get(`${API_BASE}/bookmarks/${userId}`);
-        setBookmarkedResources(res.data);
-      } catch (err) {
-        console.error("Error fetching bookmarks:", err);
-      }
-    };
-    fetchBookmarks();
-  }, [userId]);
 
   // Filter resources based on search, filters, and bookmarks toggle
   const filteredResources = (
@@ -124,6 +132,7 @@ const ResourceSearch = () => {
                 onViewPdf={setViewPdf}
                 setCopiedMessage={setCopiedMessage}
                 userId={userId}
+                refreshBookmarks={fetchBookmarks}
               />
             ))}
           </div>

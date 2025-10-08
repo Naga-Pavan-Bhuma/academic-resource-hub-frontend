@@ -24,6 +24,7 @@ const PDFViewer = ({ file, onClose }) => {
   const [resourceId, setResourceId] = useState(null); // ✅ fetched resourceId
   const pageCanvases = useRef([]);
   const [blobUrl, setBlobUrl] = useState(null);
+  const [downloadCount, setDownloadCount] = useState(0);
 
   // Fetch user
   useEffect(() => {
@@ -47,7 +48,9 @@ const PDFViewer = ({ file, onClose }) => {
   useEffect(() => {
     const fetchResource = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/resources?file=${encodeURIComponent(file)}`);
+        const res = await axios.get(
+          `${API_BASE}/resources?file=${encodeURIComponent(file)}`
+        );
         if (res.data.length > 0) setResourceId(res.data[0]._id);
       } catch (err) {
         console.error("Failed to fetch resource ID:", err);
@@ -78,25 +81,59 @@ const PDFViewer = ({ file, onClose }) => {
       }
     };
     loadPDF();
-    return () => { if (blobUrl) URL.revokeObjectURL(blobUrl); };
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
   }, [file]);
-
+  // Fetch download count
+  useEffect(() => {
+    if (!resourceId) return;
+    const fetchDownloads = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/resources/${resourceId}`);
+        setDownloadCount(res.data.downloads || 0);
+      } catch (err) {
+        console.error("Failed to fetch download count:", err);
+      }
+    };
+    fetchDownloads();
+  }, [resourceId]);
   const scrollToPage = (pageNum) => {
     const pageObj = pageCanvases.current[pageNum - 1];
     if (pageObj && containerRef.current) {
-      containerRef.current.scrollTo({ top: pageObj.offsetTop, behavior: "smooth" });
+      containerRef.current.scrollTo({
+        top: pageObj.offsetTop,
+        behavior: "smooth",
+      });
       setCurrentPage(pageNum);
     }
   };
-  const prevPage = () => { if (currentPage > 1) scrollToPage(currentPage - 1); };
-  const nextPage = () => { if (currentPage < numPages) scrollToPage(currentPage + 1); };
+  const prevPage = () => {
+    if (currentPage > 1) scrollToPage(currentPage - 1);
+  };
+  const nextPage = () => {
+    if (currentPage < numPages) scrollToPage(currentPage + 1);
+  };
 
-  const downloadPDF = () => {
-    if (!blobUrl) return;
+  const downloadPDF = async () => {
+    if (!blobUrl || !resourceId) return;
+
+    // 🔥 Increment download count in backend
+    try {
+      await axios.patch(`${API_BASE}/resources/${resourceId}/download`);
+    } catch (err) {
+      console.error("Error incrementing download count:", err);
+    }
+    await axios.patch(`${API_BASE}/resources/${resourceId}/download`);
+    setDownloadCount((prev) => prev + 1);
+
+    // 💾 Then trigger the actual download
     const link = document.createElement("a");
     link.href = blobUrl;
     link.download = file.split("/").pop() || "document.pdf";
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   if (user === undefined) return <div>Loading user...</div>;
@@ -118,6 +155,7 @@ const PDFViewer = ({ file, onClose }) => {
         onClose={onClose}
         resourceId={resourceId}
         userId={user._id}
+        downloadCount={downloadCount}
       />
       <PDFContainer
         containerRef={containerRef}

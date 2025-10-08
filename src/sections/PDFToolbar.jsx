@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaTimes,
   FaPlus,
@@ -8,7 +8,8 @@ import {
   FaArrowRight,
   FaDownload,
 } from "react-icons/fa";
-import RatingStars from "./RatingStars"; // import the rating component
+import { motion, AnimatePresence } from "framer-motion";
+import RatingStars from "./RatingStars";
 
 const PDFToolbar = ({
   scale,
@@ -21,70 +22,142 @@ const PDFToolbar = ({
   nextPage,
   downloadPDF,
   onClose,
-  resourceId, // resource _id for rating
-  userId,     // logged-in user ID for rating
+  resourceId,
+  userId,
+  downloadCount,
 }) => {
-  return (
-    <div className="bg-white w-full flex flex-wrap items-center justify-between px-4 py-2 shadow-md gap-2">
-      
-      {/* Zoom & Rotate */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => setScale((s) => s + 0.2)}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-        >
-          <FaPlus />
-        </button>
-        <button
-          onClick={() => setScale((s) => Math.max(s - 0.2, 0.2))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-        >
-          <FaMinus />
-        </button>
-        <button
-          onClick={() => setRotate((r) => (r + 90) % 360)}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-        >
-          <FaUndo />
-        </button>
-      </div>
+  const [isCompact, setIsCompact] = useState(window.innerWidth < 640);
+  const [isVisible, setIsVisible] = useState(true);
 
-      {/* Page Navigation & Download */}
-      <div className="flex items-center gap-2">
+  // Detect screen resize
+  useEffect(() => {
+    const handleResize = () => setIsCompact(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Hide toolbar slightly on scroll
+  useEffect(() => {
+    let lastScroll = 0;
+    const handleScroll = () => {
+      const current = window.scrollY;
+      setIsVisible(current < lastScroll || current < 50);
+      lastScroll = current;
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      animate={{
+        y: isVisible ? 0 : -70,
+        opacity: isVisible ? 1 : 0.85,
+      }}
+      transition={{ duration: 0.4 }}
+      className="fixed top-0 left-0 w-full z-50 px-4 py-2 flex flex-wrap items-center justify-between gap-3
+        bg-white/60 backdrop-blur-xl border-b border-white/30 shadow-md"
+    >
+      {/* --- Left Group (Zoom & Rotate) --- */}
+      {!isCompact && (
+        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md rounded-full px-3 py-1 shadow-sm">
+          <button
+            onClick={() => setScale((s) => s + 0.2)}
+            className="p-2 rounded-full hover:bg-white/40 text-gray-800 transition-all shadow-sm hover:scale-105"
+            title="Zoom In"
+          >
+            <FaPlus />
+          </button>
+          <button
+            onClick={() => setScale((s) => Math.max(s - 0.2, 0.2))}
+            className="p-2 rounded-full hover:bg-white/40 text-gray-800 transition-all shadow-sm hover:scale-105"
+            title="Zoom Out"
+          >
+            <FaMinus />
+          </button>
+          <button
+            onClick={() => setRotate((r) => (r + 90) % 360)}
+            className="p-2 rounded-full hover:bg-white/40 text-gray-800 transition-all shadow-sm hover:scale-105"
+            title="Rotate"
+          >
+            <FaUndo />
+          </button>
+        </div>
+      )}
+
+      {/* --- Middle Group (Page Nav + Download) --- */}
+      <div
+        className={`flex items-center gap-3 bg-white/20 backdrop-blur-md rounded-full px-4 py-1.5 shadow-sm ${
+          isCompact ? "px-3 py-1" : ""
+        }`}
+      >
+        {/* Previous Page */}
         <button
           onClick={prevPage}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 flex items-center gap-1"
+          className="p-2 rounded-full hover:bg-white/40 text-gray-800 flex items-center gap-1 transition-all shadow-sm hover:scale-105"
+          title="Previous Page"
         >
-          <FaArrowLeft /> Prev
+          <FaArrowLeft />
         </button>
-        <span className="px-2 font-medium text-gray-700">
-          {currentPage} / {numPages}
-        </span>
+
+        {/* Page Number */}
+        {!isCompact && (
+          <span className="text-sm text-gray-700 font-medium bg-white/10 px-2 rounded-full">
+            {currentPage} / {numPages}
+          </span>
+        )}
+
+        {/* Next Page */}
         <button
           onClick={nextPage}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 flex items-center gap-1"
+          className="p-2 rounded-full hover:bg-white/40 text-gray-800 flex items-center gap-1 transition-all shadow-sm hover:scale-105"
+          title="Next Page"
         >
-          Next <FaArrowRight />
+          <FaArrowRight />
         </button>
-        <button
-          onClick={downloadPDF}
-          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-1"
-        >
-          <FaDownload /> Download
-        </button>
+
+        {/* Download Button */}
+        <div className="relative flex items-center">
+          <button
+            onClick={downloadPDF}
+            className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 text-white font-medium rounded-full transition-all shadow-md hover:scale-105"
+            title="Download PDF"
+          >
+            <FaDownload />
+            {!isCompact && <span>Download</span>}
+          </button>
+
+          {/* Animated Download Count */}
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={downloadCount}
+              initial={{ y: 5, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -5, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute -top-2 -right-3 bg-white text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full shadow"
+            >
+              {downloadCount}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Rating & Close */}
-      <div className="flex items-center gap-3">
-        <RatingStars resourceId={resourceId} userId={userId} /> {/* Pass userId */}
+      {/* --- Right Group (Rating + Close) --- */}
+      <div className="flex items-center gap-3 bg-white/20 backdrop-blur-md rounded-full px-3 py-1.5 shadow-sm">
+        {/* Rating Stars */}
+        <RatingStars resourceId={resourceId} userId={userId} />
+
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          className="p-2 rounded-full bg-red-500/80 hover:bg-red-600 text-white transition-all shadow-sm hover:scale-105"
+          title="Close Viewer"
         >
           <FaTimes />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

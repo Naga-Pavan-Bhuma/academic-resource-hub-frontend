@@ -1,6 +1,6 @@
 import React from "react";
 
-const years = ["P1", "P2", "E1", "E2", "E3", "E4"];
+const years = ["Puc-1", "Puc-2", "Engg-1", "Engg-2", "Engg-3", "Engg-4"];
 const semesters = ["Sem-1", "Sem-2"];
 const branches = ["CSE", "ECE", "EEE", "MECH", "CIVIL", "CHEM", "MME"];
 

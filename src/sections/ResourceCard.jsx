@@ -10,17 +10,23 @@ import {
 import ShareModal from "./ShareModal";
 import axios from "axios";
 
-const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
+const ResourceCard = ({
+  resource,
+  onViewPdf,
+  setCopiedMessage,
+  userId,
+  refreshBookmarks,
+}) => {
   const [shareResource, setShareResource] = useState(null);
   const [bookmarked, setBookmarked] = useState(false);
   const shareBtnRef = useRef(null);
   const API_BASE = import.meta.env.VITE_API_BASE;
   const avgRating = resource.avgRating || 0;
   const ratingCount = resource.ratingCount || 0;
-
+  const [views, setViews] = useState(resource.views || 0);
   // ✅ Check if resource is already bookmarked
   useEffect(() => {
-    if (!userId || !resource?._id) return; // ✅ Skip until userId & resource exist
+    if (!userId || !resource?._id) return;
 
     const fetchBookmarks = async () => {
       try {
@@ -34,6 +40,30 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
 
     fetchBookmarks();
   }, [resource._id, userId]);
+  useEffect(() => {
+  const interval = setInterval(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/resources/${resource._id}`);
+      setViews(res.data.views); // only fetch current value
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [resource._id]);
+
+  const handleViewPdf = async (file) => {
+  onViewPdf(file);
+
+  try {
+    const res = await axios.patch(`${API_BASE}/resources/${resource._id}/view`);
+    setViews(res.data.views); // update the counter immediately
+  } catch (err) {
+    console.error("Error incrementing view count:", err);
+  }
+};
+
 
   // ✅ Toggle bookmark + show toast
   const toggleBookmark = async () => {
@@ -49,12 +79,21 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
       }
 
       setBookmarked(!bookmarked);
-
+      if (refreshBookmarks) refreshBookmarks();
       // Auto-hide toast after 2s
       setTimeout(() => setCopiedMessage(""), 2000);
     } catch (err) {
       console.error(err);
     }
+  };
+
+  // ✅ Determine if resource is new (added in last 7 days)
+  const isNew = (addedDate) => {
+    if (!addedDate) return false;
+    const today = new Date();
+    const resourceDate = new Date(addedDate);
+    const diffDays = (today - resourceDate) / (1000 * 60 * 60 * 24);
+    return diffDays <= 7;
   };
 
   return (
@@ -65,7 +104,18 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
       transition={{ duration: 0.3 }}
       className="relative bg-white/20 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/30 hover:shadow-2xl transition"
     >
-      {/* ✅ Bookmark Button */}
+      {/* NEW Badge */}
+      {isNew(resource.createdAt) && (
+        <span
+          className="absolute top-4 right-10 px-2 py-1 rounded-full text-xs font-bold text-white z-10 
+    bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600
+    animate-gradient-x shadow-md"
+        >
+          NEW
+        </span>
+      )}
+
+      {/* Bookmark Button */}
       <button
         onClick={toggleBookmark}
         className={`absolute top-4 right-4 text-xl hover:scale-110 transition-transform ${
@@ -120,7 +170,7 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
           {resource.subject}
         </span>
         <span className="bg-purple-100/40 text-purple-800 text-xs px-3 py-1 rounded-full cursor-pointer hover:scale-105 transition-transform duration-200">
-          Year {resource.year}
+          {resource.year}
         </span>
         <span className="bg-pink-100/40 text-pink-800 text-xs px-3 py-1 rounded-full cursor-pointer hover:scale-105 transition-transform duration-200">
           {resource.sem}
@@ -131,7 +181,7 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
       <div className="flex gap-2 mt-3 relative">
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={() => onViewPdf(resource.file)}
+          onClick={() => handleViewPdf(resource.file)}
           className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-2 rounded-2xl hover:opacity-90 shadow-md transition"
         >
           <FaEye /> View PDF
@@ -153,6 +203,11 @@ const ResourceCard = ({ resource, onViewPdf, setCopiedMessage, userId }) => {
             setCopiedMessage={setCopiedMessage}
           />
         )}
+        {/* Views */}
+        <div className="flex items-center gap-1 text-gray-600 text-sm font-medium">
+          <FaEye className="text-cyan-500" />
+          <span>{views || 0}</span>
+        </div>
       </div>
     </motion.div>
   );

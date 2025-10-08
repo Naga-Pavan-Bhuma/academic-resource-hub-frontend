@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-const NavbarLoggedIn = ({ userName, profileImg }) => {
+const NavbarLoggedIn = ({userName, profileImg }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,6 +13,7 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
   };
 
   const navItems = [
+    { name: "Home", path: "/student" },
     { name: "Resources", path: "/student/resources" },
     { name: "Discussions", path: "/student/discussions" },
     { name: "Upload", path: "/student/upload" },
@@ -26,7 +27,7 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
          <img
   src="/assets/Logo1.gif" // 👈 your logo path (like /academic-hub-logo.svg or .png)
   alt="Academic Hub Logo"
-  onClick={() => navigate("/student/resources")}
+  onClick={() => navigate("/student")}
   className="h-8 md:h-10 w-auto cursor-pointer transform hover:scale-105 transition-transform duration-300 object-contain"
 />
 

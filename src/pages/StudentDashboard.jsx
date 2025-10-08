@@ -8,6 +8,7 @@ import Leaderboard from "../sections/Leaderboard";
 import PageWrapper from "../sections/PageWrapper";
 import Upload from "../sections/Upload";
 import PDFViewer from "../sections/PDFViewer";
+import StudentHome from "./StudentHome";
 const API_BASE =
   import.meta.env.VITE_API_BASE;
 
@@ -57,7 +58,8 @@ const StudentDashboard = () => {
       <NavbarLoggedIn userName={user.name} profileImg={user.profileImg} />
 
       <Routes>
-        <Route path="/" element={<Navigate to="resources" />} />
+          <Route path="/" element={<StudentHome user={user} />} />
+
         <Route
           path="resources"
           element={
