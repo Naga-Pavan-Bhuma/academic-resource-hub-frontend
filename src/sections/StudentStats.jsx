@@ -108,7 +108,7 @@ const StudentStats = () => {
   return (
     <section
       ref={ref}
-      className="relative py-16 px-6 sm:px-12 max-w-7xl mx-auto"
+      className="relative py-16 px-6 sm:px-12 max-w-7xl mx-auto overflow-hidden"
     >
       {/* 🌈 Background blobs */}
       <div className="absolute top-0 -left-20 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>

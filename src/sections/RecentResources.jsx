@@ -35,17 +35,17 @@ const RecentResources = ({ year, branch, userId }) => {
   if (!resources.length) return null;
 
   return (
-    <section className="relative my-12 max-w-6xl mx-auto px-4">
+    <section className="relative my-12 max-w-7xl mx-auto px-4 overflow-hidden min-h-[400px] md:min-h-[400px]">
       {/* Background Blobs */}
       <div className="absolute top-0 -left-20 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
       <div className="absolute top-32 -right-32 w-96 h-96 bg-violet-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
       <div className="absolute -bottom-24 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
 
-      <h3 className="text-3xl md:text-3xl text-center font-fredoka font-bold text-cyan-500 mb-6 relative z-10">
+      <h3 className="text-3xl md:text-3xl text-center font-fredoka font-bold text-cyan-500 mb-6 mt-6 relative z-10">
         Recent Resources for {year} - {branch}
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
+      <div className="mt-8 ml-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         {resources.map((resource) => (
           <ResourceCard
             key={resource._id}

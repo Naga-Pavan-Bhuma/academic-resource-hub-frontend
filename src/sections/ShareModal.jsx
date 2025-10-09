@@ -2,7 +2,7 @@ import React from "react";
 import { FaWhatsapp, FaTelegramPlane, FaEnvelope, FaLink, FaTimes } from "react-icons/fa";
 
 const ShareModal = ({ resource, onClose, setCopiedMessage }) => {
-  const siteLink = "https://academic-resource-hub.com"; 
+  const siteLink = "http://academic-resource-hub-frontend.vercel.app/"; 
 
   const msg = `Hey! Check out this awesome resource: "${resource.title}" for ${resource.subject} - Unit ${resource._unitNumber || resource.unitNumber}`;
 
