@@ -10,16 +10,16 @@ import RequireAuth from "./sections/RequireAuth";
 function App() {
   return (
     <Router>
-      {/* Toast system */}
       <Toaster position="top-right" />
 
       <Routes>
-        {/* Public routes */}
+
+        {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Student Dashboard */}
+        {/* ALL STUDENT FEATURES (PROTECTED) */}
         <Route
           path="/student/*"
           element={
@@ -28,6 +28,7 @@ function App() {
             </RequireAuth>
           }
         />
+
       </Routes>
     </Router>
   );
