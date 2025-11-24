@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-const NavbarLoggedIn = ({ userName, profileImg }) => {
+const NavbarLoggedIn = ({ userName }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,9 +22,9 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
 
   return (
     <>
-      {/* Header */}
       <header className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/20 border-b border-white/30 shadow-lg">
         <div className="relative max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+          
           {/* Logo */}
           <img
             src="/assets/Logo1.gif"
@@ -52,20 +52,18 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
 
           {/* Desktop User Menu */}
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 cursor-pointer group">
-              {profileImg ? (
-                <img
-                  src={profileImg}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover border-2 border-cyan-400 transition-transform duration-300 group-hover:scale-110"
-                />
-              ) : (
-                <FaUserCircle className="w-8 h-8 text-cyan-400" />
-              )}
+
+            {/* Updated: Navigate to profile on click */}
+            <div
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => navigate("/student/profile")}
+            >
+              <FaUserCircle className="w-8 h-8 text-cyan-400" />
               <span className="font-medium text-gray-900 group-hover:text-cyan-500 transition-colors duration-300">
                 {userName}
               </span>
             </div>
+
             <button
               onClick={handleLogout}
               className="px-5 py-2 border border-cyan-400 text-cyan-500 font-medium rounded-lg hover:bg-cyan-500 hover:text-white transform hover:scale-110 transition-all duration-300"
@@ -127,17 +125,15 @@ const NavbarLoggedIn = ({ userName, profileImg }) => {
             </Link>
           ))}
 
-          {/* Mobile Profile */}
-          <div className="flex items-center gap-2 mt-6">
-            {profileImg ? (
-              <img
-                src={profileImg}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover border-2 border-cyan-400"
-              />
-            ) : (
-              <FaUserCircle className="w-8 h-8 text-cyan-400" />
-            )}
+          {/* Mobile Profile (Updated Click) */}
+          <div
+            className="flex items-center gap-2 mt-6 cursor-pointer"
+            onClick={() => {
+              setMenuOpen(false);
+              navigate("/student/profile");
+            }}
+          >
+            <FaUserCircle className="w-8 h-8 text-cyan-400" />
             <span className="font-medium text-gray-900">{userName}</span>
           </div>
 

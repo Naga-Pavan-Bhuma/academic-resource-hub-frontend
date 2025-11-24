@@ -19,7 +19,7 @@ const GoogleLoginButton = ({ onSuccess }) => {
   const handleCredentialResponse = (response) => {
     // response.credential is a JWT
     console.log("Google JWT:", response.credential);
-    onSuccess(response.credential); // send to your backend
+    onSuccess(response.credential);
   };
 
   return <div id="googleSignInDiv"></div>;

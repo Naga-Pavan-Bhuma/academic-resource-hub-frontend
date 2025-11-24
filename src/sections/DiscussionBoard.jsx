@@ -16,64 +16,71 @@ export default function DiscussionBoard({ user, resourceId }) {
   const [selectedThread, setSelectedThread] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch discussions
+  // 🔥 Fetch discussions (general OR course-specific)
   useEffect(() => {
-    let mounted = true;
+    let active = true;
     setLoading(true);
 
-    const fetchUrl = () =>
-      `${API_BASE}/discussions${
-        resourceId ? `?resourceId=${resourceId}` : "?type=general"
-      }`;
+    const url = resourceId
+      ? `${API_BASE}/discussions?resourceId=${resourceId}`
+      : `${API_BASE}/discussions?type=general`;
 
     axios
-      .get(fetchUrl())
+      .get(url)
       .then((res) => {
-        if (!mounted) return;
+        if (!active) return;
         setThreads(res.data || []);
         setFilteredThreads(res.data || []);
         setSelectedThread(null);
       })
       .catch((err) => {
         console.error("Failed to load discussions:", err);
-        if (mounted) {
+        if (active) {
           setThreads([]);
           setFilteredThreads([]);
         }
       })
-      .finally(() => mounted && setLoading(false));
+      .finally(() => active && setLoading(false));
 
-    return () => (mounted = false);
+    return () => (active = false);
   }, [resourceId]);
 
-  // Add comment
+  // 🔥 Secure Add Comment (no postedBy field)
   const addComment = async (threadId, commentText) => {
     if (!user?._id) {
       alert("Login required");
       return;
     }
-    if (!commentText) return;
+    if (!commentText.trim()) return;
 
     try {
       const res = await axios.post(
         `${API_BASE}/discussions/${threadId}/comments`,
+        { text: commentText },
         {
-          text: commentText,
-          postedBy: user._id,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
-      const updatedThreads = threads.map((t) =>
+
+      const updated = threads.map((t) =>
         t._id === res.data._id ? res.data : t
       );
-      setThreads(updatedThreads);
-      setFilteredThreads(updatedThreads);
-      if (selectedThread?._id === res.data._id) setSelectedThread(res.data);
+
+      setThreads(updated);
+      setFilteredThreads(updated);
+
+      if (selectedThread?._id === res.data._id) {
+        setSelectedThread(res.data);
+      }
     } catch (error) {
-      console.error("Post comment failed", error);
-      alert("Failed to post comment.");
+      console.error("Failed to post comment:", error);
+      alert("Failed to post comment");
     }
   };
 
+  // 🔥 If user not logged in
   if (!user) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
@@ -82,8 +89,8 @@ export default function DiscussionBoard({ user, resourceId }) {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-neutral-600 font-medium bg-white/30 backdrop-blur-md px-6 py-4 rounded-2xl shadow-lg"
         >
-          Please <span className="font-semibold">log in</span> to view and
-          participate in discussions.
+          Please <span className="font-semibold">log in</span> to participate in
+          discussions.
         </motion.p>
       </div>
     );
@@ -99,9 +106,10 @@ export default function DiscussionBoard({ user, resourceId }) {
           </h1>
           <p className="mt-2 text-sm md:text-base text-slate-500 max-w-lg">
             A friendly and interactive space for students — ask questions, share
-            ideas, summarize lessons, and collaborate effectively.
+            notes, drop summaries, and collaborate with your batchmates.
           </p>
         </div>
+
         <SearchBar
           threads={threads}
           setFilteredThreads={setFilteredThreads}
@@ -110,69 +118,31 @@ export default function DiscussionBoard({ user, resourceId }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left column: Create thread + Filters */}
+        {/* LEFT: Create Thread + Filters */}
         <motion.aside
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
           className="md:col-span-1 p-5 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg"
         >
           {/* Thread Creation */}
           <ThreadCreate
+            user={user}
+            resourceId={resourceId}
             threads={threads}
             setThreads={setThreads}
             setFilteredThreads={setFilteredThreads}
             setSelectedThread={setSelectedThread}
-            user={user}
-            resourceId={resourceId}
           />
 
-          {/* Quick Filters */}
-          <div className="mt-3">
-            <h3 className="text-sm font-semibold text-slate-700 mb-2">
-              Quick filters
-            </h3>
-            <div className="flex gap-2 flex-wrap">
-              {["All", "Recent", "Active"].map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => {
-                    if (filter === "All") {
-                      setFilteredThreads(threads);
-                      setSelectedThread(null);
-                    } else if (filter === "Recent") {
-                      const recent = [...threads].sort(
-                        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                      );
-                      setFilteredThreads(recent);
-                      setSelectedThread(null);
-                    } else {
-                      const active = threads.filter(
-                        (t) => (t.comments || []).length > 0
-                      );
-                      setFilteredThreads(active);
-                      setSelectedThread(null);
-                    }
-                  }}
-                  className="px-3 py-1 rounded-full border border-white/40 text-sm text-slate-700 bg-white/20 backdrop-blur-sm hover:bg-gradient-to-r hover:from-cyan-400 hover:to-blue-400 hover:text-white shadow-sm hover:shadow-lg transition transform hover:scale-105"
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Keyboard Tips */}
-          <div className="mt-3 text-xs text-slate-400">
-            <strong>Keyboard tips:</strong>
-            <ul className="mt-1 list-disc list-inside">
-              <li>Enter to submit thread or search</li>
-              <li>Arrow keys to navigate within thread list</li>
-            </ul>
-          </div>
+          {/* Filters */}
+          <ThreadFilters
+            threads={threads}
+            setFilteredThreads={setFilteredThreads}
+            setSelectedThread={setSelectedThread}
+          />
         </motion.aside>
 
-        {/* Middle column: Thread list */}
+        {/* MIDDLE: Thread List */}
         <ThreadList
           loading={loading}
           threads={filteredThreads}
@@ -182,12 +152,11 @@ export default function DiscussionBoard({ user, resourceId }) {
           className="md:col-span-1 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg p-4 h-[520px] overflow-hidden"
         />
 
-        {/* Right column: Selected thread */}
+        {/* RIGHT: Selected Thread */}
         <motion.main
           className="md:col-span-1 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-5 shadow-lg h-[520px] overflow-auto"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
         >
           {selectedThread ? (
             <Thread
@@ -215,8 +184,7 @@ export default function DiscussionBoard({ user, resourceId }) {
                 Select a thread to view conversation
               </div>
               <p className="mt-2 text-sm">
-                Pro tip: Click a thread on the left or create a new one to start
-                a chat.
+                Tip: Choose a thread or create one to start chatting!
               </p>
             </div>
           )}

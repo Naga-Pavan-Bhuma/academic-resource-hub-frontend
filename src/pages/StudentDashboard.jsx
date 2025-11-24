@@ -7,10 +7,10 @@ import DiscussionBoard from "../sections/DiscussionBoard";
 import Leaderboard from "../sections/Leaderboard";
 import PageWrapper from "../sections/PageWrapper";
 import Upload from "../sections/Upload";
+import Profile from "../sections/Profile";
 import PDFViewer from "../sections/PDFViewer";
 import StudentHome from "./StudentHome";
-const API_BASE =
-  import.meta.env.VITE_API_BASE;
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 const StudentDashboard = () => {
   const [user, setUser] = useState(null);
@@ -46,8 +46,7 @@ const StudentDashboard = () => {
       </div>
     );
 
-  if (!user)
-    return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
 
   if (viewPdf) {
     return <PDFViewer file={viewPdf} onClose={() => setViewPdf(null)} />;
@@ -58,7 +57,7 @@ const StudentDashboard = () => {
       <NavbarLoggedIn userName={user.name} profileImg={user.profileImg} />
 
       <Routes>
-          <Route path="/" element={<StudentHome user={user} />} />
+        <Route path="/" element={<StudentHome user={user} />} />
 
         <Route
           path="resources"
@@ -82,6 +81,14 @@ const StudentDashboard = () => {
           element={
             <PageWrapper>
               <Upload user={user} />
+            </PageWrapper>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <PageWrapper>
+              <Profile />
             </PageWrapper>
           }
         />

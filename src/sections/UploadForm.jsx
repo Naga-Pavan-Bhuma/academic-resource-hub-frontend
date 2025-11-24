@@ -31,8 +31,10 @@ const UploadForm = ({
 
   const handleUpload = async () => {
     if (!file) return alert("📄 Please select a PDF to upload!");
-    if (file.type !== "application/pdf") return alert("⚠️ Only PDF files are allowed!");
-    if (!metadata.title || !metadata.subject) return alert("⚠️ Please fill Title & Subject!");
+    if (file.type !== "application/pdf")
+      return alert("⚠️ Only PDF files are allowed!");
+    if (!metadata.title || !metadata.subject)
+      return alert("⚠️ Please fill Title & Subject!");
 
     setUploading(true);
     setProgress(0);
@@ -47,20 +49,29 @@ const UploadForm = ({
         "https://api.cloudinary.com/v1_1/dsvroldwr/raw/upload",
         formData,
         {
-          onUploadProgress: (e) => setProgress(Math.round((e.loaded * 100) / e.total)),
+          onUploadProgress: (e) =>
+            setProgress(Math.round((e.loaded * 100) / e.total)),
         }
       );
 
       const uploadedFileUrl = res.data.secure_url;
       setUrl(uploadedFileUrl);
 
-      await axios.post(`${API_BASE}/resources`, {
-        ...metadata,
-        uploadedBy: user?.name,
-        collegeId: user?.collegeId,
-        file: uploadedFileUrl,
-        unitNumber: Number(metadata.unitNumber),
-      });
+      await axios.post(
+        `${API_BASE}/resources`,
+        {
+          ...metadata,
+          uploadedBy: user?.name,
+          collegeId: user?.collegeId,
+          file: uploadedFileUrl,
+          unitNumber: Number(metadata.unitNumber),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       setUploaded(true);
     } catch (err) {
@@ -88,17 +99,46 @@ const UploadForm = ({
 
       {/* Year, Semester & Branch */}
       <div className="flex flex-col sm:flex-row gap-4 w-full">
-        <select name="year" value={metadata.year} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
+        <select
+          name="year"
+          value={metadata.year}
+          onChange={handleChange}
+          className={`w-full sm:flex-1 ${inputClass}`}
+        >
           <option value="">Select Year</option>
-          {["Puc-1","Puc-2","Engg-1","Engg-2","Engg-3","Engg-4"].map((y) => <option key={y} value={y}>{y}</option>)}
+          {["Puc-1", "Puc-2", "Engg-1", "Engg-2", "Engg-3", "Engg-4"].map(
+            (y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            )
+          )}
         </select>
-        <select name="sem" value={metadata.sem} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
+        <select
+          name="sem"
+          value={metadata.sem}
+          onChange={handleChange}
+          className={`w-full sm:flex-1 ${inputClass}`}
+        >
           <option value="">Select Sem</option>
-          {["Sem-1","Sem-2"].map((s) => <option key={s} value={s}>{s}</option>)}
+          {["Sem-1", "Sem-2"].map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
         </select>
-        <select name="branch" value={metadata.branch} onChange={handleChange} className={`w-full sm:flex-1 ${inputClass}`}>
+        <select
+          name="branch"
+          value={metadata.branch}
+          onChange={handleChange}
+          className={`w-full sm:flex-1 ${inputClass}`}
+        >
           <option value="">Select Branch</option>
-          {["CSE","ECE","EEE","MECH","CIVIL","CHEM","MME"].map((b) => <option key={b} value={b}>{b}</option>)}
+          {["CSE", "ECE", "EEE", "MECH", "CIVIL", "CHEM", "MME"].map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -119,12 +159,21 @@ const UploadForm = ({
           className={`w-full sm:max-w-[120px] ${inputClass}`}
         >
           <option value="">Unit</option>
-          {[1,2,3,4,5,6].map((n) => <option key={n} value={n}>{n}</option>)}
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
         </select>
       </div>
 
       {/* File Input */}
-      <FileInput file={file} setFile={setFile} fileError={fileError} setFileError={setFileError} />
+      <FileInput
+        file={file}
+        setFile={setFile}
+        fileError={fileError}
+        setFileError={setFileError}
+      />
 
       {/* Progress */}
       {uploading && <ProgressBar progress={progress} />}

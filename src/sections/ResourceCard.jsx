@@ -44,7 +44,7 @@ const ResourceCard = ({
   const interval = setInterval(async () => {
     try {
       const res = await axios.get(`${API_BASE}/resources/${resource._id}`);
-      setViews(res.data.views); // only fetch current value
+      setViews(res.data.views);
     } catch (err) {
       console.error(err);
     }
@@ -65,7 +65,6 @@ const ResourceCard = ({
 };
 
 
-  // ✅ Toggle bookmark + show toast
   const toggleBookmark = async () => {
     try {
       if (bookmarked) {

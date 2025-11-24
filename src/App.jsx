@@ -4,18 +4,30 @@ import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
+import { Toaster } from "react-hot-toast";
+import RequireAuth from "./sections/RequireAuth";
 
 function App() {
   return (
     <Router>
+      {/* Toast system */}
+      <Toaster position="top-right" />
+
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Student dashboard with nested routes */}
-        <Route path="/student/*" element={<StudentDashboard />} />
+        {/* Protected Student Dashboard */}
+        <Route
+          path="/student/*"
+          element={
+            <RequireAuth>
+              <StudentDashboard />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </Router>
   );
