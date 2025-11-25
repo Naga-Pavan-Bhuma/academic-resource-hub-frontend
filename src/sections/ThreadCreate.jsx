@@ -3,7 +3,14 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-export default function ThreadCreate({ threads, setThreads, setFilteredThreads, setSelectedThread, user, resourceId }) {
+export default function ThreadCreate({
+  threads,
+  setThreads,
+  setFilteredThreads,
+  setSelectedThread,
+  user,
+  resourceId,
+}) {
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -14,13 +21,29 @@ export default function ThreadCreate({ threads, setThreads, setFilteredThreads, 
     }
     if (!title.trim()) return;
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Login expired. Please log in again.");
+      return;
+    }
+
     setCreating(true);
     try {
-      const res = await axios.post(`${API_BASE}/discussions`, {
-        title: title.trim(),
-        createdBy: user._id,
-        resourceId: resourceId || null,
-      });
+      const res = await axios.post(
+        `${API_BASE}/discussions`,
+        {
+          title: title.trim(),
+          createdBy: user._id,
+          resourceId: resourceId || null,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const newThreads = [res.data, ...threads];
       setThreads(newThreads);
       setFilteredThreads(newThreads);
@@ -40,13 +63,13 @@ export default function ThreadCreate({ threads, setThreads, setFilteredThreads, 
         Start a new thread
       </label>
       <div className="flex flex-col md:flex-row gap-2">
-  <input
-    id="new-thread-input"
-    value={title}
-    onChange={(e) => setTitle(e.target.value)}
-    onKeyDown={(e) => e.key === "Enter" && createThread()}
-    placeholder="Give it a clear, helpful title"
-    className="
+        <input
+          id="new-thread-input"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && createThread()}
+          placeholder="Give it a clear, helpful title"
+          className="
       flex-1
       rounded-xl
       border border-white/30
@@ -60,11 +83,11 @@ export default function ThreadCreate({ threads, setThreads, setFilteredThreads, 
       transition-all duration-300
       hover:shadow-lg
     "
-  />
-  <button
-    onClick={createThread}
-    disabled={creating}
-    className="
+        />
+        <button
+          onClick={createThread}
+          disabled={creating}
+          className="
       inline-flex items-center justify-center px-5 py-2
       bg-gradient-to-tr from-cyan-500 to-blue-500
       text-white font-semibold text-sm
@@ -74,14 +97,15 @@ export default function ThreadCreate({ threads, setThreads, setFilteredThreads, 
       transition transform
       disabled:opacity-60
     "
-    title="Create Thread"
-  >
-    {creating ? "Creating..." : "Post"}
-  </button>
-</div>
+          title="Create Thread"
+        >
+          {creating ? "Creating..." : "Post"}
+        </button>
+      </div>
 
       <p className="mt-2 text-xs text-slate-400">
-        Tip: Use short descriptive titles so classmates can find your thread easily.
+        Tip: Use short descriptive titles so classmates can find your thread
+        easily.
       </p>
     </div>
   );

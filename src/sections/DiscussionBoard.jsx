@@ -7,6 +7,7 @@ import ThreadFilters from "./ThreadFilters";
 import ThreadList from "./ThreadList";
 import Thread from "./Thread";
 import Skeleton from "./Skeleton";
+import ConfirmPopup from "./ConfirmPopup";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -15,8 +16,9 @@ export default function DiscussionBoard({ user, resourceId }) {
   const [filteredThreads, setFilteredThreads] = useState([]);
   const [selectedThread, setSelectedThread] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
-  // 🔥 Fetch discussions (general OR course-specific)
+  // 🔥 Fetch discussions
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -45,7 +47,7 @@ export default function DiscussionBoard({ user, resourceId }) {
     return () => (active = false);
   }, [resourceId]);
 
-  // 🔥 Secure Add Comment (no postedBy field)
+  // 🔥 Add Comment
   const addComment = async (threadId, commentText) => {
     if (!user?._id) {
       alert("Login required");
@@ -77,6 +79,30 @@ export default function DiscussionBoard({ user, resourceId }) {
     } catch (error) {
       console.error("Failed to post comment:", error);
       alert("Failed to post comment");
+    }
+  };
+
+  // 🔥 Delete thread
+  const deleteThread = async (threadId, askConfirm = false) => {
+    if (askConfirm) {
+      setConfirmDeleteId(threadId);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API_BASE}/discussions/${threadId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const updated = threads.filter((t) => t._id !== threadId);
+      setThreads(updated);
+      setFilteredThreads(updated);
+
+      if (selectedThread?._id === threadId) setSelectedThread(null);
+    } catch (err) {
+      console.error("Failed to delete thread:", err);
+      alert("Failed to delete thread");
     }
   };
 
@@ -124,7 +150,6 @@ export default function DiscussionBoard({ user, resourceId }) {
           animate={{ opacity: 1, y: 0 }}
           className="md:col-span-1 p-5 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg"
         >
-          {/* Thread Creation */}
           <ThreadCreate
             user={user}
             resourceId={resourceId}
@@ -134,7 +159,6 @@ export default function DiscussionBoard({ user, resourceId }) {
             setSelectedThread={setSelectedThread}
           />
 
-          {/* Filters */}
           <ThreadFilters
             threads={threads}
             setFilteredThreads={setFilteredThreads}
@@ -149,7 +173,10 @@ export default function DiscussionBoard({ user, resourceId }) {
           selectedThread={selectedThread}
           setSelectedThread={setSelectedThread}
           Skeleton={Skeleton}
-          className="md:col-span-1 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg p-4 h-[520px] overflow-hidden"
+          user={user}
+          deleteThread={deleteThread}
+          setThreads={setThreads} // 🔥 required for real-time updates
+          setFilteredThreads={setFilteredThreads} // 🔥 required
         />
 
         {/* RIGHT: Selected Thread */}
@@ -163,6 +190,9 @@ export default function DiscussionBoard({ user, resourceId }) {
               thread={selectedThread}
               user={user}
               onAddComment={addComment}
+
+              // 🔥 THIS IS THE FIX
+              setThread={setSelectedThread}
             />
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center text-slate-400">
@@ -190,6 +220,17 @@ export default function DiscussionBoard({ user, resourceId }) {
           )}
         </motion.main>
       </div>
+
+      {/* Confirm Delete Popup */}
+      <ConfirmPopup
+        open={!!confirmDeleteId}
+        onCancel={() => setConfirmDeleteId(null)}
+        onConfirm={() => {
+          const id = confirmDeleteId;
+          setConfirmDeleteId(null);
+          deleteThread(id);
+        }}
+      />
     </div>
   );
 }
