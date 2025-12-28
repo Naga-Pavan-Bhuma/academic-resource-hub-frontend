@@ -141,35 +141,37 @@ const PDFViewer = ({ file, onClose }) => {
   if (!resourceId) return <div>Loading resource info...</div>;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50">
-      <PDFToolbar
-        scale={scale}
-        setScale={setScale}
-        rotate={rotate}
-        setRotate={setRotate}
-        currentPage={currentPage}
-        numPages={numPages}
-        prevPage={prevPage}
-        nextPage={nextPage}
-        downloadPDF={downloadPDF}
-        onClose={onClose}
-        resourceId={resourceId}
-        userId={user._id}
-        downloadCount={downloadCount}
-      />
-      <PDFContainer
-        containerRef={containerRef}
-        pdfDoc={pdfDoc}
-        scale={scale}
-        rotate={rotate}
-        pageCanvases={pageCanvases}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        loading={loading}
-        loadingPercent={loadingPercent}
-      />
-    </div>
-  );
+  <div className="flex flex-col h-full w-full bg-black/70">
+    <PDFToolbar
+      scale={scale}
+      setScale={setScale}
+      rotate={rotate}
+      setRotate={setRotate}
+      currentPage={currentPage}
+      numPages={numPages}
+      prevPage={prevPage}
+      nextPage={nextPage}
+      downloadPDF={downloadPDF}
+      onClose={onClose}
+      resourceId={resourceId}
+      userId={user._id}
+      downloadCount={downloadCount}
+    />
+
+    <PDFContainer
+      containerRef={containerRef}
+      pdfDoc={pdfDoc}
+      scale={scale}
+      rotate={rotate}
+      pageCanvases={pageCanvases}
+      currentPage={currentPage}
+      setCurrentPage={setCurrentPage}
+      loading={loading}
+      loadingPercent={loadingPercent}
+    />
+  </div>
+);
+
 };
 
 export default PDFViewer;
