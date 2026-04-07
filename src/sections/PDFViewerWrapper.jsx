@@ -45,6 +45,22 @@ const PDFViewerWrapper = (props) => {
             >
               Chat
             </button>
+
+
+            {/* ✅ ADD THIS */}
+  <button
+    onClick={() => setActiveTab("quiz")}
+    className={`flex-1 py-2 rounded-md text-sm font-semibold
+      ${
+        activeTab === "quiz"
+          ? "bg-emerald-500 text-white"
+          : "bg-gray-100 text-gray-700"
+      }`}
+  >
+    Quiz
+  </button>
+
+  
           </div>
 
           {/* 🔽 AI CONTENT */}

@@ -7,6 +7,9 @@ import StudentDashboard from "./pages/StudentDashboard";
 import { Toaster } from "react-hot-toast";
 import RequireAuth from "./sections/RequireAuth";
 
+import FacultyDashboard from "./pages/FacultyDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+
 function App() {
   return (
     <Router>
@@ -14,22 +17,42 @@ function App() {
 
       <Routes>
 
-        {/* PUBLIC ROUTES */}
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
+  {/* PUBLIC ROUTES */}
+  <Route path="/" element={<Home />} />
+  <Route path="/signup" element={<Signup />} />
+  <Route path="/login" element={<Login />} />
 
-        {/* ALL STUDENT FEATURES (PROTECTED) */}
-        <Route
-          path="/student/*"
-          element={
-            <RequireAuth>
-              <StudentDashboard />
-            </RequireAuth>
-          }
-        />
+  {/* STUDENT */}
+  <Route
+    path="/student/*"
+    element={
+      <RequireAuth>
+        <StudentDashboard />
+      </RequireAuth>
+    }
+  />
 
-      </Routes>
+  {/* FACULTY */}
+  <Route
+    path="/faculty"
+    element={
+      <RequireAuth>
+        <FacultyDashboard />
+      </RequireAuth>
+    }
+  />
+
+  {/* ADMIN */}
+  <Route
+    path="/admin"
+    element={
+      <RequireAuth>
+        <AdminDashboard />
+      </RequireAuth>
+    }
+  />
+
+</Routes>
     </Router>
   );
 }

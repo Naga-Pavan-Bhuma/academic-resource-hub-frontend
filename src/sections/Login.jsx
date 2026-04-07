@@ -50,8 +50,18 @@ const Login = () => {
     try {
       const data = await loginUser(email + "@rguktrkv.ac.in", password);
       if (data.token) {
-        localStorage.setItem("token", data.token);
-        navigate("/student");
+       localStorage.setItem("token", data.token);
+localStorage.setItem("user", JSON.stringify(data.user));
+
+const role = data.user.role;
+
+if (role === "admin") {
+  navigate("/admin");
+} else if (role === "faculty") {
+  navigate("/faculty");
+} else {
+  navigate("/student");
+}
       } else {
         alert(data.message || "Login failed");
       }
@@ -76,7 +86,17 @@ const Login = () => {
       const data = await loginUserWithGoogle(jwt);
       if (data.token) {
         localStorage.setItem("token", data.token);
-        navigate("/student");
+localStorage.setItem("user", JSON.stringify(data.user));
+
+const role = data.user.role;
+
+if (role === "admin") {
+  navigate("/admin");
+} else if (role === "faculty") {
+  navigate("/faculty");
+} else {
+  navigate("/student");
+}
       } else {
         alert(data.message || "Google login failed");
       }
