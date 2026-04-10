@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import NavbarLoggedIn from "../sections/NavbarLoggedIn";
 import PageWrapper from "../sections/PageWrapper";
@@ -6,65 +6,60 @@ import PageWrapper from "../sections/PageWrapper";
 const API = import.meta.env.VITE_API_BASE;
 
 const AdminDashboard = () => {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
+  const [stats, setStats] = useState({
+    users: 0,
+    faculty: 0,
+    students: 0,
+    resources: 0,
+    views: 0,
   });
 
-  const createFaculty = async () => {
-  try {
-    const token = localStorage.getItem("token");
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
-    const res = await axios.post(
-      `${API}/users/create-faculty`,
-      form,
-      {
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(`${API}/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+      });
 
-    console.log(res.data);
-    alert("Faculty created!");
-  } catch (err) {
-    console.error(err);
-    alert(err.response?.data?.message || "Error");
-  }
-};
+      setStats(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cards = [
+    { title: "Total Users", value: stats.users },
+    { title: "Students", value: stats.students },
+    { title: "Faculty", value: stats.faculty },
+    { title: "Total PDFs", value: stats.resources },
+    { title: "Total Views", value: stats.views },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
       <NavbarLoggedIn userName="Admin" />
 
       <PageWrapper>
-        <h2 className="text-3xl font-bold text-cyan-500 mb-6">
-          Create Faculty
+        <h2 className="text-4xl font-bold text-cyan-500 mb-8">
+          Admin Dashboard
         </h2>
 
-        <div className="bg-white p-6 rounded-xl shadow w-full max-w-md">
-          <input
-            placeholder="Name"
-            className="w-full mb-3 p-2 border rounded"
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          <input
-            placeholder="Email"
-            className="w-full mb-3 p-2 border rounded"
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
-          <input
-            placeholder="Password"
-            type="password"
-            className="w-full mb-3 p-2 border rounded"
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
-
-          <button
-            onClick={createFaculty}
-            className="bg-cyan-500 text-white px-4 py-2 rounded"
-          >
-            Create Faculty
-          </button>
+        {/* STATS GRID */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {cards.map((card, i) => (
+            <div
+              key={i}
+              className="p-6 rounded-2xl shadow-lg bg-gradient-to-r from-cyan-400 to-blue-500 text-white transform hover:scale-105 transition"
+            >
+              <h3 className="text-lg">{card.title}</h3>
+              <p className="text-3xl font-bold mt-2">{card.value}</p>
+            </div>
+          ))}
         </div>
       </PageWrapper>
     </div>

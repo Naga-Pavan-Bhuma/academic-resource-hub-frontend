@@ -7,18 +7,47 @@ const NavbarLoggedIn = ({ userName }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
-  const navItems = [
-    { name: "Home", path: "/student" },
-    { name: "Resources", path: "/student/resources" },
-    { name: "Discussions", path: "/student/discussions" },
-    { name: "Upload", path: "/student/upload" },
-    { name: "Leaderboard", path: "/student/leaderboard" },
-  ];
+  // 🔥 ROLE BASED NAV ITEMS
+  let navItems = [];
+
+  if (user?.role === "student") {
+    navItems = [
+      { name: "Home", path: "/student" },
+      { name: "Resources", path: "/student/resources" },
+      { name: "Discussions", path: "/student/discussions" },
+      { name: "Upload", path: "/student/upload" },
+      { name: "Leaderboard", path: "/student/leaderboard" },
+    ];
+  }
+
+  if (user?.role === "faculty") {
+    navItems = [
+      { name: "Dashboard", path: "/faculty" },
+      { name: "Pending PDFs", path: "/faculty/pending" },
+    ];
+  }
+
+  if (user?.role === "admin") {
+    navItems = [
+      { name: "Dashboard", path: "/admin" },
+      { name: "Create Faculty", path: "/admin/create-faculty" },
+    ];
+  }
+
+  // 🔥 LOGO CLICK BASED ON ROLE
+  const handleLogoClick = () => {
+    if (user?.role === "admin") navigate("/admin");
+    else if (user?.role === "faculty") navigate("/faculty");
+    else navigate("/student");
+  };
 
   return (
     <>
@@ -29,7 +58,7 @@ const NavbarLoggedIn = ({ userName }) => {
           <img
             src="/assets/Logo1.gif"
             alt="Academic Hub Logo"
-            onClick={() => navigate("/student")}
+            onClick={handleLogoClick}
             className="h-8 md:h-10 w-auto cursor-pointer transform hover:scale-105 transition-transform duration-300 object-contain"
           />
 
@@ -53,14 +82,19 @@ const NavbarLoggedIn = ({ userName }) => {
           {/* Desktop User Menu */}
           <div className="hidden md:flex items-center gap-4">
 
-            {/* Updated: Navigate to profile on click */}
+            {/* Profile */}
             <div
               className="flex items-center gap-2 cursor-pointer group"
-              onClick={() => navigate("/student/profile")}
+              onClick={() => navigate(`/${user?.role}/profile`)}
             >
               <FaUserCircle className="w-8 h-8 text-cyan-400" />
               <span className="font-medium text-gray-900 group-hover:text-cyan-500 transition-colors duration-300">
                 {userName}
+              </span>
+
+              {/* 🔥 Role Badge */}
+              <span className="text-xs bg-cyan-100 text-cyan-600 px-2 py-1 rounded">
+                {user?.role?.toUpperCase()}
               </span>
             </div>
 
@@ -100,7 +134,7 @@ const NavbarLoggedIn = ({ userName }) => {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden fixed top-16 left-0 right-0 z-40 h-screen bg-white/70 backdrop-blur-xl border-t border-white/30 shadow-lg transform transition-transform duration-500 ease-in-out ${
+        className={`md:hidden fixed top-16 left-0 right-0 z-40 h-screen bg-white/70 backdrop-blur-xl border-t border-white/30 shadow-lg transform transition-transform duration-500 ${
           menuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
         }`}
       >
@@ -115,29 +149,24 @@ const NavbarLoggedIn = ({ userName }) => {
                   ? "text-cyan-500 font-semibold"
                   : "text-gray-700 hover:text-cyan-400"
               }`}
-              style={{
-                transitionDelay: `${i * 0.08}s`,
-                opacity: menuOpen ? 1 : 0,
-                transform: menuOpen ? "translateY(0)" : "translateY(20px)",
-              }}
             >
               {item.name}
             </Link>
           ))}
 
-          {/* Mobile Profile (Updated Click) */}
+          {/* Mobile Profile */}
           <div
             className="flex items-center gap-2 mt-6 cursor-pointer"
             onClick={() => {
               setMenuOpen(false);
-              navigate("/student/profile");
+              navigate(`/${user?.role}/profile`);
             }}
           >
             <FaUserCircle className="w-8 h-8 text-cyan-400" />
             <span className="font-medium text-gray-900">{userName}</span>
           </div>
 
-          {/* Mobile Logout */}
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className="px-6 py-3 border border-cyan-400 text-cyan-500 rounded-lg hover:bg-cyan-500 hover:text-white transform hover:scale-105 mt-4 transition-all duration-300"

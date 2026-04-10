@@ -7,6 +7,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import { Toaster } from "react-hot-toast";
 import RequireAuth from "./sections/RequireAuth";
 
+import CreateFaculty from "./pages/CreateFaculty";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -44,13 +45,22 @@ function App() {
 
   {/* ADMIN */}
   <Route
-    path="/admin"
-    element={
-      <RequireAuth>
-        <AdminDashboard />
-      </RequireAuth>
-    }
-  />
+  path="/admin"
+  element={
+    <RequireAuth>
+      <AdminDashboard />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/admin/create-faculty"
+  element={
+    <RequireAuth>
+      <CreateFaculty />
+    </RequireAuth>
+  }
+/>
 
 </Routes>
     </Router>
